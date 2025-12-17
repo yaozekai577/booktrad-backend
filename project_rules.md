@@ -11,8 +11,8 @@
 - 禁止功能包间直接访问Mapper
 
 ### 1.2 包结构规范
-```
-com.sky
+以下仅仅只是包结构的示例
+com.booktrad
 ├── common             # 公共组件包
 │   ├── constant       # 全局常量
 │   ├── context        # 上下文工具
@@ -37,7 +37,7 @@ com.sky
 │   └── OrderTask.java
 ├── websocket          # WebSocket包
 │   └── WebSocketServer.java
-├── employee           # 员工管理功能包
+├── admin              # 管理员管理功能包
 │   ├── controller     # 控制器层
 │   ├── service        # 服务层接口
 │   ├── service.impl   # 服务层实现
@@ -53,7 +53,7 @@ com.sky
 │   ├── dto
 │   ├── entity
 │   └── vo
-├── dish               # 菜品管理功能包
+├── book               # 书籍管理功能包
 │   ├── controller
 │   ├── service
 │   ├── service.impl
@@ -69,7 +69,7 @@ com.sky
 │   ├── dto
 │   ├── entity
 │   └── vo
-├── setmeal            # 套餐管理功能包
+├── category           # 书籍分类功能包
 │   ├── controller
 │   ├── service
 │   ├── service.impl
@@ -85,7 +85,23 @@ com.sky
 │   ├── dto
 │   ├── entity
 │   └── vo
-└── addressbook        # 地址簿功能包
+├── addressbook        # 地址簿功能包
+│   ├── controller
+│   ├── service
+│   ├── service.impl
+│   ├── mapper
+│   ├── dto
+│   ├── entity
+│   └── vo
+├── comment            # 评论管理功能包
+│   ├── controller
+│   ├── service
+│   ├── service.impl
+│   ├── mapper
+│   ├── dto
+│   ├── entity
+│   └── vo
+└── favorite           # 收藏管理功能包
     ├── controller
     ├── service
     ├── service.impl
@@ -97,7 +113,7 @@ com.sky
 
 ### 1.3 功能包命名规范
 - 按业务功能命名，使用小写单数形式
-- 示例：employee（员工管理）、order（订单管理）、dish（菜品管理）
+- 示例：admin（管理员管理）、user（用户管理）、book（书籍管理）、order（订单管理）
 - 禁止使用缩写或拼音
 
 ### 1.4 功能包内部结构要求
@@ -400,7 +416,7 @@ com.sky
 - 图片：CDN加速
 
 ## 13. 技术栈最佳实践
-- 核心技术栈：Spring Boot 2.7.3，MyBatis 2.2.0，MySQL 8.0，Redis 6.0，JWT 0.9.1，Lombok 1.18.20
+- 核心技术栈：Spring Boot 3.2.0，MyBatis Plus 3.5.7，MySQL 8.0，Redis 6.0，JWT 0.9.1，Lombok 1.18.20
 - 依赖管理：
   - 父pom统一管理所有依赖版本
   - 功能包间禁止循环依赖
