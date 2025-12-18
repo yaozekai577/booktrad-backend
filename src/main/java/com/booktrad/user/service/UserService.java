@@ -4,11 +4,16 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.booktrad.user.dto.RegisterDTO;
 import com.booktrad.user.entity.User;
 
-/**
- * 用户Service接口
- *
- * @author 
- * @since 2025-12-16
+/** 
+ * 项目名称：booktrad 
+ * 版本：V1.0 
+ * 
+ * @Author yaozekai 
+ * @Email 2321593248@qq.com 
+ * @Description  用户Service接口，定义用户相关业务逻辑
+ * @Date 2025-12-18 21:00:00 
+ * Copyrigt (C) 2025-2026 All Right Reserved 
+ * 注意：本内容为个人毕设 
  */
 public interface UserService extends IService<User> {
     

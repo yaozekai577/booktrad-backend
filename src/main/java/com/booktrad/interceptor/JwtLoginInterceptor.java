@@ -15,12 +15,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-/**
- * JWT登录拦截器
- * 用于拦截除登录接口外的所有请求，校验JWT token的合法性
- *
- * @author 
- * @since 2025-12-16
+/** 
+ * 项目名称：booktrad 
+ * 版本：V1.0 
+ * 
+ * @Author yaozekai 
+ * @Email 2321593248@qq.com 
+ * @Description  JWT登录拦截器，用于拦截除登录接口外的所有请求，校验JWT token的合法性 
+ * @Date 2025-12-18 21:00:00 
+ * Copyrigt (C) 2025-2026 All Right Reserved 
+ * 注意：本内容为个人毕设 
  */
 @Component
 public class JwtLoginInterceptor implements HandlerInterceptor {

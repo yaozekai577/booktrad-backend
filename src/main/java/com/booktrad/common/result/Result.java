@@ -2,12 +2,16 @@ package com.booktrad.common.result;
 
 import lombok.Data;
 
-/**
- * 统一响应结果封装
- * 用于所有API接口的响应格式统一
- *
- * @author 
- * @since 2025-12-16
+/** 
+ * 项目名称：booktrad 
+ * 版本：V1.0 
+ * 
+ * @Author yaozekai 
+ * @Email 2321593248@qq.com 
+ * @Description  统一响应结果封装，用于所有API接口的响应格式统一 
+ * @Date 2025-12-18 21:00:00 
+ * Copyrigt (C) 2025-2026 All Right Reserved 
+ * 注意：本内容为个人毕设 
  */
 @Data
 public class Result<T> {
