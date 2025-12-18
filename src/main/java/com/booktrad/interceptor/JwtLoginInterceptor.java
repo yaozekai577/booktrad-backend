@@ -36,7 +36,7 @@ public class JwtLoginInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // 1. 检查请求路径是否为登录接口，登录接口直接放行
+        // 1. 检查请求路径是否为登录接口、注册接口或错误路径，这些接口直接放行
         String requestURI = request.getRequestURI();
         if ("/api/auth/login".equals(requestURI)) {
             return true;

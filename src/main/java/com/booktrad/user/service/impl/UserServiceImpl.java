@@ -1,15 +1,17 @@
 package com.booktrad.user.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.booktrad.common.utils.JwtUtil;
 import com.booktrad.user.dto.RegisterDTO;
 import com.booktrad.user.entity.User;
 import com.booktrad.user.mapper.UserMapper;
 import com.booktrad.user.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 用户Service实现类
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
  * @author 
  * @since 2025-12-16
  */
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
@@ -33,9 +36,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public User getByUsername(String username) {
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUsername, username);
-        return userMapper.selectOne(queryWrapper);
+        log.info("开始查询用户，用户名: '{}'", username);
+        
+        // 使用自定义查询方法
+        User user = userMapper.selectByUsername(username);
+        log.info("自定义查询结果: {}", user);
+        
+        // 查询所有用户（用于调试）
+        List<User> allUsers = userMapper.selectAllUsers();
+        log.info("所有用户: {}", allUsers);
+        
+        return user;
     }
 
     /**
