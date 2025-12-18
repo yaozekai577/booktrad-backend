@@ -121,6 +121,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = new User();
         user.setUsername(registerDTO.getUsername());
         user.setPassword(encryptedPassword);
+        user.setEmail(registerDTO.getEmail());
+        user.setPhone(registerDTO.getPhone());
         user.setRole(0); // 默认角色：0-普通用户
         user.setStatus(1); // 默认状态：1-正常
         

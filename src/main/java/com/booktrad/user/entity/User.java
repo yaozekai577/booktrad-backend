@@ -38,6 +38,16 @@ public class User {
     private String password;
 
     /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 手机号
+     */
+    private String phone;
+
+    /**
      * 角色：0-普通用户，1-管理员
      */
     private Integer role;
