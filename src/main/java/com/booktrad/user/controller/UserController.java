@@ -48,6 +48,8 @@ public class UserController {
             LoginVO loginVO = new LoginVO();
             loginVO.setId(user.getId());
             loginVO.setUsername(user.getUsername());
+            loginVO.setEmail(user.getEmail());
+            loginVO.setPhone(user.getPhone());
             loginVO.setRole(user.getRole());
             loginVO.setStatus(user.getStatus());
             loginVO.setCreatedAt(user.getCreatedAt());
@@ -81,6 +83,8 @@ public class UserController {
             LoginVO loginVO = new LoginVO();
             loginVO.setId(user.getId());
             loginVO.setUsername(user.getUsername());
+            loginVO.setEmail(user.getEmail());
+            loginVO.setPhone(user.getPhone());
             loginVO.setRole(user.getRole());
             loginVO.setStatus(user.getStatus());
             loginVO.setCreatedAt(user.getCreatedAt());
