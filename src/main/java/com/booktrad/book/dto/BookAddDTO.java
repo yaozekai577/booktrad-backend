@@ -74,6 +74,26 @@ public class BookAddDTO {
     private String coverImage;
 
     /**
+     * 交易方式：自取/邮寄
+     */
+    private String tradeType;
+
+    /**
+     * 瑕疵说明
+     */
+    private String defectDesc;
+
+    /**
+     * 出版时间 yyyy-MM
+     */
+    private String publishTime;
+
+    /**
+     * 分类路径
+     */
+    private String categoryPath;
+
+    /**
      * 状态：1-在售 2-已下架 3-已售出（可选，默认1-在售）
      */
     private Integer status;

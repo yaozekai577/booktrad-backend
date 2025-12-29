@@ -116,6 +116,41 @@ public class Book {
     private Integer viewCount;
 
     /**
+     * 交易方式：自取/邮寄
+     * 对应数据库字段：trade_type
+     */
+    @TableField("trade_type")
+    private String tradeType;
+
+    /**
+     * 瑕疵说明
+     * 对应数据库字段：defect_desc
+     */
+    @TableField("defect_desc")
+    private String defectDesc;
+
+    /**
+     * 出版时间 yyyy-MM
+     * 对应数据库字段：publish_time
+     */
+    @TableField("publish_time")
+    private String publishTime;
+
+    /**
+     * 分类路径
+     * 对应数据库字段：category_path
+     */
+    @TableField("category_path")
+    private String categoryPath;
+
+    /**
+     * 成交时间
+     * 对应数据库字段：sold_at
+     */
+    @TableField("sold_at")
+    private LocalDateTime soldAt;
+
+    /**
      * 上架时间
      * 对应数据库字段：created_at
      */

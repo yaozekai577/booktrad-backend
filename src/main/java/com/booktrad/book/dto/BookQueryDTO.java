@@ -59,6 +59,26 @@ public class BookQueryDTO {
     private Integer status;
 
     /**
+     * 交易方式：自取/邮寄（精确查询）
+     */
+    private String tradeType;
+
+    /**
+     * 出版时间（精确查询，格式：yyyy-MM）
+     */
+    private String publishTime;
+
+    /**
+     * 分类路径（模糊查询）
+     */
+    private String categoryPath;
+
+    /**
+     * 是否封禁：0-正常 1-封禁（精确查询）
+     */
+    private Integer isBanned;
+
+    /**
      * 排序字段，例如：price、createdAt、viewCount
      */
     private String sortField;

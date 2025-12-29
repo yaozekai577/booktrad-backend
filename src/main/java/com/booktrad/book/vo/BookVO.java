@@ -110,6 +110,41 @@ public class BookVO {
     private Integer viewCount;
 
     /**
+     * 交易方式：自取/邮寄
+     */
+    private String tradeType;
+
+    /**
+     * 瑕疵说明
+     */
+    private String defectDesc;
+
+    /**
+     * 出版时间 yyyy-MM
+     */
+    private String publishTime;
+
+    /**
+     * 分类路径
+     */
+    private String categoryPath;
+
+    /**
+     * 成交时间
+     */
+    private LocalDateTime soldAt;
+
+    /**
+     * 是否封禁：0-正常 1-封禁
+     */
+    private Integer isBanned;
+
+    /**
+     * 是否封禁描述
+     */
+    private String isBannedDesc;
+
+    /**
      * 上架时间
      */
     private LocalDateTime createdAt;
