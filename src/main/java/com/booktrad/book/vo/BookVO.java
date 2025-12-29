@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 项目名称：booktrad
@@ -90,9 +91,15 @@ public class BookVO {
     private String description;
 
     /**
-     * 封面图片URL
+     * 封面图片URL字符串（数据库存储，以逗号分隔）
+     * 仅用于接收数据库查询结果，不对外暴露
      */
-    private String coverImage;
+    private String coverImageStr;
+
+    /**
+     * 封面图片URL列表
+     */
+    private List<String> coverImage;
 
     /**
      * 状态：1-在售 2-已下架 3-已售出

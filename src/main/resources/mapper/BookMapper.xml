@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.booktrad.book.mapper.BookMapper">
+
+    <!-- 根据ID查询书籍详情 -->
+    <select id="selectBookDetailById" resultType="com.booktrad.book.vo.BookVO">
+        SELECT
+            b.id,
+            b.seller_id AS sellerId,
+            u.username AS sellerUsername,
+            b.title,
+            b.author,
+            b.publisher,
+            b.isbn,
+            b.category_id AS categoryId,
+            b.category_path AS categoryPath,
+            b.price,
+            b.original_price AS originalPrice,
+            b.book_condition AS bookCondition,
+            b.description,
+            b.defect_desc AS defectDesc,
+            b.cover_image AS coverImageStr,
+            b.status,
+            b.is_banned AS isBanned,
+            b.view_count AS viewCount,
+            b.trade_type AS tradeType,
+            b.publish_time AS publishTime,
+            b.sold_at AS soldAt,
+            b.created_at AS createdAt,
+            b.updated_at AS updatedAt
+        FROM book b
+        LEFT JOIN user u ON b.seller_id = u.id
+        WHERE b.id = #{id}
+        AND b.deleted_at IS NULL
+        AND b.is_banned = 0
+    </select>
+
+</mapper>
