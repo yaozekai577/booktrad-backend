@@ -30,6 +30,11 @@ public class BookQueryDTO {
     private String author;
 
     /**
+     * 搜索关键字（模糊查询书名或作者）
+     */
+    private String keyword;
+
+    /**
      * ISBN编号（精确查询）
      */
     private String isbn;
