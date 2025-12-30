@@ -51,12 +51,24 @@
         WHERE b.status = 1
         AND b.is_banned = 0
         AND b.deleted_at IS NULL
-        <if test="keyword != null and keyword != ''">
-            AND (b.title LIKE CONCAT('%', #{keyword}, '%')
-            OR b.author LIKE CONCAT('%', #{keyword}, '%'))
+        <if test="query.keyword != null and query.keyword != ''">
+            AND (b.title LIKE CONCAT('%', #{query.keyword}, '%')
+            OR b.author LIKE CONCAT('%', #{query.keyword}, '%'))
         </if>
-        <if test="categoryId != null">
-            AND b.category_id = #{categoryId}
+        <if test="query.categoryId != null">
+            AND b.category_id = #{query.categoryId}
+        </if>
+        <if test="query.bookConditions != null and query.bookConditions.size() > 0">
+            AND b.book_condition IN
+            <foreach collection="query.bookConditions" item="condition" open="(" separator="," close=")">
+                #{condition}
+            </foreach>
+        </if>
+        <if test="query.minPrice != null">
+            AND b.price &gt;= #{query.minPrice}
+        </if>
+        <if test="query.maxPrice != null">
+            AND b.price &lt;= #{query.maxPrice}
         </if>
         ORDER BY b.created_at DESC
     </select>

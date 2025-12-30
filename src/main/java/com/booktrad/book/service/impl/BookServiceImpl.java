@@ -3,6 +3,7 @@ package com.booktrad.book.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.booktrad.book.dto.BookPublishDTO;
+import com.booktrad.book.dto.BookQueryDTO;
 import com.booktrad.book.entity.Book;
 import com.booktrad.book.mapper.BookMapper;
 import com.booktrad.book.service.BookService;
@@ -53,16 +54,25 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public IPage<BookPageVO> getBookPage(Integer current, Integer size, String keyword, Long categoryId) {
-        // 1. 设置默认值
-        int page = current != null && current > 0 ? current : 1;
-        int pageSize = size != null && size > 0 ? size : 6;
+    public IPage<BookPageVO> getBookPage(BookQueryDTO bookQueryDTO) {
+        // 1. 参数验证：价格区间
+        if (bookQueryDTO.getMinPrice() != null && bookQueryDTO.getMaxPrice() != null) {
+            if (bookQueryDTO.getMinPrice().compareTo(bookQueryDTO.getMaxPrice()) > 0) {
+                throw new RuntimeException("最小价格不能大于最大价格");
+            }
+        }
 
-        // 2. 创建分页对象
-        Page<BookPageVO> pageParam = new Page<>(page, pageSize);
+        // 2. 设置默认值
+        int page = bookQueryDTO.getPage() != null && bookQueryDTO.getPage() > 0 ? bookQueryDTO.getPage() : 1;
+        int size = bookQueryDTO.getSize() != null && bookQueryDTO.getSize() > 0 ? bookQueryDTO.getSize() : 6;
+        bookQueryDTO.setPage(page);
+        bookQueryDTO.setSize(size);
 
-        // 3. 调用Mapper查询分页数据
-        IPage<BookPageVO> bookPage = bookMapper.selectBookPage(pageParam, keyword, categoryId);
+        // 3. 创建分页对象
+        Page<BookPageVO> pageParam = new Page<>(page, size);
+
+        // 4. 调用Mapper查询分页数据
+        IPage<BookPageVO> bookPage = bookMapper.selectBookPage(pageParam, bookQueryDTO);
 
         return bookPage;
     }

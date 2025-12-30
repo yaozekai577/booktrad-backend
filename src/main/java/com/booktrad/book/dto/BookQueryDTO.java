@@ -3,6 +3,7 @@ package com.booktrad.book.dto;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 项目名称：booktrad
@@ -49,9 +50,9 @@ public class BookQueryDTO {
     private BigDecimal maxPrice;
 
     /**
-     * 成色：1-全新 2-九成新 3-八成新 4-明显使用痕迹（精确查询）
+     * 成色列表，支持多选：1-全新 2-九成新 3-八成新 4-明显使用痕迹
      */
-    private Integer bookCondition;
+    private List<Integer> bookConditions;
 
     /**
      * 状态：1-在售 2-已下架 3-已售出（精确查询）

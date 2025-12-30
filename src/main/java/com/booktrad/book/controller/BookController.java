@@ -2,6 +2,7 @@ package com.booktrad.book.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.booktrad.book.dto.BookPublishDTO;
+import com.booktrad.book.dto.BookQueryDTO;
 import com.booktrad.book.service.BookService;
 import com.booktrad.book.vo.BookPageVO;
 import com.booktrad.book.vo.BookPublishVO;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -38,20 +38,14 @@ public class BookController {
     /**
      * 首页书籍分页查询
      * 只查询"在售、未封禁、未删除"的书籍
-     * @param page 当前页（默认 1）
-     * @param size 每页条数（默认 6）
-     * @param keyword 搜索关键词（匹配书名或作者，可选）
-     * @param categoryId 分类ID（可选）
+     * 支持高级筛选：关键词、分类、成色多选、价格区间
+     * @param bookQueryDTO 查询条件DTO
      * @return 分页结果，包含records、total、current、size
      */
     @GetMapping("/page")
-    public Result<IPage<BookPageVO>> getBookPage(
-            @RequestParam(required = false, defaultValue = "1") Integer page,
-            @RequestParam(required = false, defaultValue = "6") Integer size,
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) Long categoryId) {
+    public Result<IPage<BookPageVO>> getBookPage(BookQueryDTO bookQueryDTO) {
         try {
-            IPage<BookPageVO> bookPage = bookService.getBookPage(page, size, keyword, categoryId);
+            IPage<BookPageVO> bookPage = bookService.getBookPage(bookQueryDTO);
             return Result.success(bookPage);
         } catch (RuntimeException e) {
             return Result.error(e.getMessage());
