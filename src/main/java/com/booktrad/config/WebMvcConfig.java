@@ -9,15 +9,15 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/** 
- * 项目名称：booktrad 
- * 版本：V1.0 
- * 
- * @Author yaozekai 
- * @Email 2321593248@qq.com 
+/**
+ * 项目名称：booktrad
+ * 版本：V1.0
+ *
+ * @Author yaozekai
+ * @Email 2321593248@qq.com
  * @Description  WebMvc配置类，用于配置Spring Boot的WebMvc相关功能，包括跨域配置、拦截器配置和静态资源映射
- * @Date 2025-12-18 21:00:00 
- * Copyrigt (C) 2025-2026 All Right Reserved 
+ * @Date 2025-12-18 21:00:00
+ * Copyrigt (C) 2025-2026 All Right Reserved
  * 注意：本内容为个人毕设
  */
 @Configuration
