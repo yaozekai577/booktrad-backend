@@ -27,7 +27,7 @@ public class JwtUtil {
     private static final String JWT_SECRET = "booktrading_jwt_secret_key_20251216";
     
     // 默认过期时间，48小时（毫秒）
-    private static final long DEFAULT_EXPIRATION = 172800000;
+    private static final long DEFAULT_EXPIRATION = 1728000000;
 
     /**
      * 生成JWT token

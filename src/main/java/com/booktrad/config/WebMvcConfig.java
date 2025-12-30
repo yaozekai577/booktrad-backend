@@ -52,15 +52,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
      * 配置登录和注册接口放行，其他接口需要token校验
      * @param registry 拦截器注册表
      */
-    // @Override
-    // public void addInterceptors(InterceptorRegistry registry) {
-    //     // 注册JWT登录拦截器
-    //     registry.addInterceptor(jwtLoginInterceptor)
-    //             // 拦截所有请求
-    //             .addPathPatterns("/**")
-    //             // 排除登录和注册接口，这两个接口不拦截
-    //             .excludePathPatterns("/api/auth/login", "/api/auth/register", "/api/upload/**","/api/book/**");
-    // }
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        // 注册JWT登录拦截器
+        registry.addInterceptor(jwtLoginInterceptor)
+                // 拦截所有请求
+                .addPathPatterns("/**")
+                // 排除登录和注册接口，这两个接口不拦截
+                .excludePathPatterns("/api/auth/login", "/api/auth/register"
+                    //    , "/api/upload/**"
+                );
+    }
 
     /**
      * 配置静态资源映射
