@@ -1,13 +1,18 @@
 package com.booktrad.book.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.booktrad.book.dto.BookPublishDTO;
 import com.booktrad.book.service.BookService;
 import com.booktrad.book.vo.BookPageVO;
+import com.booktrad.book.vo.BookPublishVO;
 import com.booktrad.book.vo.BookVO;
+import com.booktrad.common.context.UserContext;
 import com.booktrad.common.result.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,6 +53,28 @@ public class BookController {
         try {
             IPage<BookPageVO> bookPage = bookService.getBookPage(page, size, keyword, categoryId);
             return Result.success(bookPage);
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 发布书籍
+     * @param bookPublishDTO 书籍发布请求DTO
+     * @return 发布结果，包含书籍ID
+     */
+    @PostMapping("/publish")
+    public Result<BookPublishVO> publishBook(@RequestBody BookPublishDTO bookPublishDTO) {
+        try {
+            // 从当前登录用户中获取sellerId
+            Long sellerId = UserContext.getUserId();
+            if (sellerId == null) {
+                return Result.error(401, "未授权，请先登录");
+            }
+
+            // 调用Service层发布书籍
+            BookPublishVO bookPublishVO = bookService.publishBook(bookPublishDTO, sellerId);
+            return Result.success("发布成功", bookPublishVO);
         } catch (RuntimeException e) {
             return Result.error(e.getMessage());
         }

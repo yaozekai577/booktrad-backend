@@ -2,10 +2,14 @@ package com.booktrad.book.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.booktrad.book.dto.BookPublishDTO;
+import com.booktrad.book.entity.Book;
 import com.booktrad.book.mapper.BookMapper;
 import com.booktrad.book.service.BookService;
 import com.booktrad.book.vo.BookPageVO;
+import com.booktrad.book.vo.BookPublishVO;
 import com.booktrad.book.vo.BookVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,6 +65,42 @@ public class BookServiceImpl implements BookService {
         IPage<BookPageVO> bookPage = bookMapper.selectBookPage(pageParam, keyword, categoryId);
 
         return bookPage;
+    }
+
+    @Override
+    public BookPublishVO publishBook(BookPublishDTO bookPublishDTO, Long sellerId) {
+        // 1. 参数校验
+        if (bookPublishDTO.getTitle() == null || bookPublishDTO.getTitle().trim().isEmpty()) {
+            throw new RuntimeException("书名不能为空");
+        }
+        if (bookPublishDTO.getPrice() == null || bookPublishDTO.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("出售价格必须大于0");
+        }
+
+        // 2. 将DTO转换为Book实体
+        Book book = new Book();
+        BeanUtils.copyProperties(bookPublishDTO, book);
+
+        // 3. 设置卖家ID（从当前登录用户中获取）
+        book.setSellerId(sellerId);
+
+        // 4. 设置默认值
+        book.setStatus(1); // 状态：1-在售
+        book.setIsBanned(0); // 是否封禁：0-正常
+        book.setViewCount(0); // 浏览次数：0
+
+        // 5. 使用MyBatis-Plus的insert方法插入数据库
+        int result = bookMapper.insert(book);
+
+        // 6. 判断插入是否成功
+        if (result <= 0) {
+            throw new RuntimeException("书籍发布失败");
+        }
+
+        // 7. 返回发布结果
+        BookPublishVO bookPublishVO = new BookPublishVO();
+        bookPublishVO.setBookId(book.getId());
+        return bookPublishVO;
     }
 
     /**

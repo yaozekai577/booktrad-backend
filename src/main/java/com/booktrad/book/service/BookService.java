@@ -1,7 +1,9 @@
 package com.booktrad.book.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.booktrad.book.dto.BookPublishDTO;
 import com.booktrad.book.vo.BookPageVO;
+import com.booktrad.book.vo.BookPublishVO;
 import com.booktrad.book.vo.BookVO;
 
 /**
@@ -34,4 +36,12 @@ public interface BookService {
      * @return 分页结果，包含records、total、current、size
      */
     IPage<BookPageVO> getBookPage(Integer current, Integer size, String keyword, Long categoryId);
+
+    /**
+     * 发布书籍
+     * @param bookPublishDTO 书籍发布请求DTO
+     * @param sellerId 卖家用户ID（从当前登录用户中获取）
+     * @return 发布结果，包含书籍ID
+     */
+    BookPublishVO publishBook(BookPublishDTO bookPublishDTO, Long sellerId);
 }
