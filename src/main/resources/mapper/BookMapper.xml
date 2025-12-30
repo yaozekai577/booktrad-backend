@@ -35,4 +35,30 @@
         AND b.is_banned = 0
     </select>
 
+    <!-- 首页书籍分页查询 -->
+    <select id="selectBookPage" resultType="com.booktrad.book.vo.BookPageVO">
+        SELECT
+            b.id AS bookId,
+            b.title,
+            b.author,
+            SUBSTRING_INDEX(b.cover_image, ',', 1) AS coverImg,
+            b.price,
+            b.original_price AS originalPrice,
+            u.username AS sellerName,
+            JSON_UNQUOTE(JSON_EXTRACT(u.extra_info, '$.location')) AS sellerLocation
+        FROM book b
+        LEFT JOIN user u ON b.seller_id = u.id
+        WHERE b.status = 1
+        AND b.is_banned = 0
+        AND b.deleted_at IS NULL
+        <if test="keyword != null and keyword != ''">
+            AND (b.title LIKE CONCAT('%', #{keyword}, '%')
+            OR b.author LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="categoryId != null">
+            AND b.category_id = #{categoryId}
+        </if>
+        ORDER BY b.created_at DESC
+    </select>
+
 </mapper>

@@ -1,7 +1,10 @@
 package com.booktrad.book.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.booktrad.book.mapper.BookMapper;
 import com.booktrad.book.service.BookService;
+import com.booktrad.book.vo.BookPageVO;
 import com.booktrad.book.vo.BookVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +20,7 @@ import java.util.List;
  * @Email 2321593248@qq.com
  * @Description 书籍服务实现类
  * @Date 2025/12/29 21:22
- * Copyrigt (C) 2025-2026 All Right Reserved
+ * Copyright (C) 2025-2026 All Rights Reserved.
  * 注意：本内容为个人毕设
  */
 @Service
@@ -43,6 +46,21 @@ public class BookServiceImpl implements BookService {
         this.setDescriptions(bookVO);
 
         return bookVO;
+    }
+
+    @Override
+    public IPage<BookPageVO> getBookPage(Integer current, Integer size, String keyword, Long categoryId) {
+        // 1. 设置默认值
+        int page = current != null && current > 0 ? current : 1;
+        int pageSize = size != null && size > 0 ? size : 6;
+
+        // 2. 创建分页对象
+        Page<BookPageVO> pageParam = new Page<>(page, pageSize);
+
+        // 3. 调用Mapper查询分页数据
+        IPage<BookPageVO> bookPage = bookMapper.selectBookPage(pageParam, keyword, categoryId);
+
+        return bookPage;
     }
 
     /**

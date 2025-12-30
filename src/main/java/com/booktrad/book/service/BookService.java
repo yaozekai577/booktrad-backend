@@ -1,5 +1,7 @@
 package com.booktrad.book.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.booktrad.book.vo.BookPageVO;
 import com.booktrad.book.vo.BookVO;
 
 /**
@@ -21,4 +23,15 @@ public interface BookService {
      * @return 书籍详情VO
      */
     BookVO getBookDetail(Long id);
+
+    /**
+     * 首页书籍分页查询
+     * 只查询"在售、未封禁、未删除"的书籍
+     * @param current 当前页
+     * @param size 每页条数
+     * @param keyword 搜索关键词（匹配书名或作者，可选）
+     * @param categoryId 分类ID（可选）
+     * @return 分页结果，包含records、total、current、size
+     */
+    IPage<BookPageVO> getBookPage(Integer current, Integer size, String keyword, Long categoryId);
 }
