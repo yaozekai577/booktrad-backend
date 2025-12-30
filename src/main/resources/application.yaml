@@ -6,6 +6,17 @@ spring:
     url: jdbc:mysql://localhost:3306/booktrading?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
+  # 文件上传配置
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# 文件上传路径配置
+file:
+  upload:
+    path: src/main/resources/upload
 
 # MyBatis Plus配置
 mybatis-plus:
