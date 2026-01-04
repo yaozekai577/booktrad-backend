@@ -115,7 +115,15 @@ public class UploadController {
                 PutObjectResult result = ossClient.putObject(putObjectRequest);
                 
                 // 9. 构建访问URL
-                String fileUrl = ossConfig.getUrlPrefix() + ossFilePath;
+                String urlPrefix = ossConfig.getUrlPrefix();
+                String fileUrl;
+                if (urlPrefix != null && !urlPrefix.isEmpty()) {
+                    // 如果配置了url-prefix，直接使用
+                    fileUrl = urlPrefix + ossFilePath;
+                } else {
+                    // 如果没有配置url-prefix，动态构建
+                    fileUrl = "https://" + ossConfig.getBucketName() + "." + ossConfig.getEndpoint() + "/" + ossFilePath;
+                }
 
                 // 10. 返回上传结果
                 UploadVO uploadVO = new UploadVO();

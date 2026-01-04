@@ -46,13 +46,13 @@ public class OssConfig {
     /**
      * 上传文件的前缀路径
      */
-    @Value("${oss.prefix}")
+    @Value("${oss.prefix:}")
     private String prefix;
 
     /**
      * 访问URL前缀
      */
-    @Value("${oss.url-prefix}")
+    @Value("${oss.url-prefix:}")
     private String urlPrefix;
 
     /**
