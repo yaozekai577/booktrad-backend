@@ -1,7 +1,13 @@
 package com.booktrad.book.controller;
 
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSException;
+import com.aliyun.oss.model.PutObjectRequest;
+import com.aliyun.oss.model.PutObjectResult;
 import com.booktrad.book.vo.UploadVO;
 import com.booktrad.common.result.Result;
+import com.booktrad.config.OssConfig;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -40,16 +47,16 @@ public class UploadController {
     private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png");
 
     /**
-     * 上传文件保存路径
+     * OSS配置
      */
-    @Value("${file.upload.path:upload}")
-    private String uploadPath;
+    @Autowired
+    private OssConfig ossConfig;
 
     /**
-     * 服务器访问地址
+     * OSS客户端
      */
-    @Value("${server.port:8080}")
-    private String serverPort;
+    @Autowired
+    private OSS ossClient;
 
     /**
      * 图片上传接口
@@ -84,26 +91,43 @@ public class UploadController {
             // 4. 生成唯一文件名（使用UUID）
             String newFilename = UUID.randomUUID().toString() + "." + extension;
 
-            // 5. 创建上传目录（如果不存在）
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
+            // 5. 构建OSS文件路径
+            String ossFilePath = ossConfig.getPrefix() + newFilename;
+
+            // 6. 获取文件输入流
+            try (InputStream inputStream = file.getInputStream()) {
+                // 7. 创建ObjectMetadata对象，用于设置文件元数据
+                com.aliyun.oss.model.ObjectMetadata objectMetadata = new com.aliyun.oss.model.ObjectMetadata();
+                // 设置文件ContentType
+                objectMetadata.setContentType(contentType);
+                // 设置文件大小
+                objectMetadata.setContentLength(file.getSize());
+                
+                // 8. 上传文件到OSS
+                PutObjectRequest putObjectRequest = new PutObjectRequest(
+                        ossConfig.getBucketName(), 
+                        ossFilePath, 
+                        inputStream, 
+                        objectMetadata
+                );
+                
+                // 执行上传
+                PutObjectResult result = ossClient.putObject(putObjectRequest);
+                
+                // 9. 构建访问URL
+                String fileUrl = ossConfig.getUrlPrefix() + ossFilePath;
+
+                // 10. 返回上传结果
+                UploadVO uploadVO = new UploadVO();
+                uploadVO.setUrl(fileUrl);
+                return Result.success("上传成功", uploadVO);
+            } catch (OSSException e) {
+                // OSS上传异常处理
+                return Result.error("OSS上传失败：" + e.getErrorMessage());
             }
 
-            // 6. 保存文件到本地
-            File destFile = new File(uploadDir, newFilename);
-            file.transferTo(destFile);
-
-            // 7. 构建访问URL
-            String fileUrl = "http://localhost:" + serverPort + "/upload/" + newFilename;
-
-            // 8. 返回上传结果
-            UploadVO uploadVO = new UploadVO();
-            uploadVO.setUrl(fileUrl);
-            return Result.success("上传成功", uploadVO);
-
         } catch (IOException e) {
-            return Result.error("文件上传失败：" + e.getMessage());
+            return Result.error("文件读取失败：" + e.getMessage());
         } catch (Exception e) {
             return Result.error("服务器内部错误：" + e.getMessage());
         }

@@ -23,3 +23,20 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
   mapper-locations: classpath*:mapper/**/*.xml
+
+# 阿里云OSS配置
+oss:
+  # OSS服务端点，例如：oss-cn-hangzhou.aliyuncs.com
+  endpoint: oss-cn-hangzhou.aliyuncs.com
+  # 阿里云访问密钥ID
+  access-key-id: your-access-key-id
+  # 阿里云访问密钥Secret
+  access-key-secret: your-access-key-secret
+  # OSS存储空间名称
+  bucket-name: your-bucket-name
+  # OSS存储空间所在区域
+  region: oss-cn-hangzhou
+  # 上传文件的前缀路径
+  prefix: booktrad/
+  # 访问URL前缀
+  url-prefix: https://your-bucket-name.oss-cn-hangzhou.aliyuncs.com/
