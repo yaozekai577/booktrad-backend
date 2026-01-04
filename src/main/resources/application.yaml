@@ -29,14 +29,14 @@ oss:
   # OSS服务端点，例如：oss-cn-hangzhou.aliyuncs.com
   endpoint: oss-cn-hangzhou.aliyuncs.com
   # 阿里云访问密钥ID
-  access-key-id: your-access-key-id
+  access-key-id: __REMOVED_OSS_ACCESS_KEY_ID__
   # 阿里云访问密钥Secret
-  access-key-secret: your-access-key-secret
+  access-key-secret: __REMOVED_OSS_ACCESS_KEY_SECRET__
   # OSS存储空间名称
-  bucket-name: your-bucket-name
+  bucket-name: web-yzk
   # OSS存储空间所在区域
   region: oss-cn-hangzhou
   # 上传文件的前缀路径
-  prefix: booktrad/
+  #prefix: booktrad/
   # 访问URL前缀
-  url-prefix: https://your-bucket-name.oss-cn-hangzhou.aliyuncs.com/
+  #url-prefix: https://your-bucket-name.oss-cn-hangzhou.aliyuncs.com/
