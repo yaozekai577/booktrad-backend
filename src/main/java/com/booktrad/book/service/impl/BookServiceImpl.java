@@ -43,11 +43,20 @@ public class BookServiceImpl implements BookService {
         if (bookVO == null) {
             throw new RuntimeException("书籍不存在或已被删除");
         }
+        
+        // 3. 增加浏览次数
+        bookMapper.incrementViewCount(id);
+        // 更新VO中的浏览次数，避免前端显示旧数据
+        if (bookVO.getViewCount() != null) {
+            bookVO.setViewCount(bookVO.getViewCount() + 1);
+        } else {
+            bookVO.setViewCount(1);
+        }
 
-        // 3. 处理封面图片，将String转为List<String>
+        // 4. 处理封面图片，将String转为List<String>
         this.handleCoverImage(bookVO);
 
-        // 4. 设置描述信息
+        // 5. 设置描述信息
         this.setDescriptions(bookVO);
 
         return bookVO;

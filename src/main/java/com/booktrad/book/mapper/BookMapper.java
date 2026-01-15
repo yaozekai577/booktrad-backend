@@ -38,4 +38,10 @@ public interface BookMapper extends BaseMapper<Book> {
      * @return 分页结果
      */
     IPage<BookPageVO> selectBookPage(IPage<BookPageVO> page, @Param("query") BookQueryDTO bookQueryDTO);
+    /**
+     * 增加书籍浏览次数
+     * @param id 书籍ID
+     * @return 影响行数
+     */
+    int incrementViewCount(@Param("id") Long id);
 }

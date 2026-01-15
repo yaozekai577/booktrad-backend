@@ -86,4 +86,10 @@
         </choose>
     </select>
 
+    <update id="incrementViewCount">
+        UPDATE book
+        SET view_count = view_count + 1
+        WHERE id = #{id}
+    </update>
+
 </mapper>
