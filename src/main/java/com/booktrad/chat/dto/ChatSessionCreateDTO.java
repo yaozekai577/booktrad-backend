@@ -8,26 +8,21 @@ import lombok.Data;
  *
  * @Author yaozekai
  * @Email 2321593248@qq.com
- * @Description 发送消息DTO
+ * @Description 创建会话DTO
  * @Date 2026/01/19
  * Copyrigt (C) 2025-2026 All Right Reserved
  * 注意：本内容为个人毕设
  */
 @Data
-public class ChatMessageSendDTO {
+public class ChatSessionCreateDTO {
 
     /**
-     * 会话ID
+     * 书籍ID
      */
-    private Long sessionId;
+    private Long bookId;
 
     /**
-     * 消息类型：1文本 2图片 3系统消息
+     * 卖家用户ID
      */
-    private Integer messageType;
-
-    /**
-     * 消息内容
-     */
-    private String content;
+    private Long sellerId;
 }

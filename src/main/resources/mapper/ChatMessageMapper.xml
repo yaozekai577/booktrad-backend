@@ -2,4 +2,30 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.booktrad.chat.mapper.ChatMessageMapper">
 
+    <!-- 查询会话的消息列表 -->
+    <select id="selectMessageListBySessionId" resultType="com.booktrad.chat.vo.ChatMessageVO">
+        SELECT
+            cm.id,
+            cm.session_id,
+            cm.sender_id,
+            u.username AS sender_name,
+            cm.message_type,
+            cm.content,
+            cm.is_read,
+            cm.created_at
+        FROM chat_message cm
+        LEFT JOIN user u ON cm.sender_id = u.id
+        WHERE cm.session_id = #{sessionId}
+        ORDER BY cm.created_at ASC
+    </select>
+
+    <!-- 统计会话未读消息数 -->
+    <select id="countUnreadMessages" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM chat_message
+        WHERE session_id = #{sessionId}
+          AND sender_id != #{userId}
+          AND is_read = 0
+    </select>
+
 </mapper>

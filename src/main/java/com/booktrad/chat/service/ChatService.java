@@ -1,6 +1,7 @@
 package com.booktrad.chat.service;
 
 import com.booktrad.chat.dto.ChatMessageSendDTO;
+import com.booktrad.chat.dto.ChatSessionCreateDTO;
 import com.booktrad.chat.vo.ChatMessageVO;
 import com.booktrad.chat.vo.ChatSessionVO;
 
@@ -19,5 +20,43 @@ import java.util.List;
  */
 public interface ChatService {
 
+    /**
+     * 创建或获取会话
+     * @param createDTO 创建会话DTO
+     * @return 会话详情
+     */
+    ChatSessionVO createOrGetSession(ChatSessionCreateDTO createDTO);
 
+    /**
+     * 获取用户的会话列表
+     * @return 会话列表
+     */
+    List<ChatSessionVO> getSessionList();
+
+    /**
+     * 获取会话详情
+     * @param sessionId 会话ID
+     * @return 会话详情
+     */
+    ChatSessionVO getSessionDetail(Long sessionId);
+
+    /**
+     * 发送消息
+     * @param sendDTO 发送消息DTO
+     * @return 消息详情
+     */
+    ChatMessageVO sendMessage(ChatMessageSendDTO sendDTO);
+
+    /**
+     * 获取会话的消息列表
+     * @param sessionId 会话ID
+     * @return 消息列表
+     */
+    List<ChatMessageVO> getMessageList(Long sessionId);
+
+    /**
+     * 标记消息为已读
+     * @param sessionId 会话ID
+     */
+    void markMessagesAsRead(Long sessionId);
 }

@@ -2,4 +2,66 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.booktrad.chat.mapper.ChatSessionMapper">
 
+    <!-- 查询用户的会话列表 -->
+    <select id="selectSessionListByUserId" resultType="com.booktrad.chat.vo.ChatSessionVO">
+        SELECT
+            cs.id,
+            cs.book_id,
+            b.title AS book_title,
+            b.cover_image AS book_cover,
+            cs.buyer_id,
+            buyer.username AS buyer_name,
+            cs.seller_id,
+            seller.username AS seller_name,
+            CASE
+                WHEN cs.buyer_id = #{userId} THEN cs.seller_id
+                ELSE cs.buyer_id
+            END AS other_user_id,
+            CASE
+                WHEN cs.buyer_id = #{userId} THEN seller.username
+                ELSE buyer.username
+            END AS other_user_name,
+            cs.last_message,
+            cs.last_message_time,
+            cs.status,
+            cs.created_at
+        FROM chat_session cs
+        LEFT JOIN book b ON cs.book_id = b.id
+        LEFT JOIN user buyer ON cs.buyer_id = buyer.id
+        LEFT JOIN user seller ON cs.seller_id = seller.id
+        WHERE (cs.buyer_id = #{userId} OR cs.seller_id = #{userId})
+          AND cs.status = 1
+        ORDER BY cs.last_message_time DESC
+    </select>
+
+    <!-- 查询会话详情 -->
+    <select id="selectSessionDetailById" resultType="com.booktrad.chat.vo.ChatSessionVO">
+        SELECT
+            cs.id,
+            cs.book_id,
+            b.title AS book_title,
+            b.cover_image AS book_cover,
+            cs.buyer_id,
+            buyer.username AS buyer_name,
+            cs.seller_id,
+            seller.username AS seller_name,
+            CASE
+                WHEN cs.buyer_id = #{userId} THEN cs.seller_id
+                ELSE cs.buyer_id
+            END AS other_user_id,
+            CASE
+                WHEN cs.buyer_id = #{userId} THEN seller.username
+                ELSE buyer.username
+            END AS other_user_name,
+            cs.last_message,
+            cs.last_message_time,
+            cs.status,
+            cs.created_at
+        FROM chat_session cs
+        LEFT JOIN book b ON cs.book_id = b.id
+        LEFT JOIN user buyer ON cs.buyer_id = buyer.id
+        LEFT JOIN user seller ON cs.seller_id = seller.id
+        WHERE cs.id = #{sessionId}
+    </select>
+
 </mapper>
