@@ -87,7 +87,27 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         WebSocketSession session = USER_SESSIONS.get(userId);
         if (session != null && session.isOpen()) {
             try {
-                String jsonMsg = objectMapper.writeValueAsString(message);
+                WebSocketEvent<ChatMessageVO> event = new WebSocketEvent<>("NEW_MESSAGE", message);
+                String jsonMsg = objectMapper.writeValueAsString(event);
+                session.sendMessage(new TextMessage(jsonMsg));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 发送已读回执给指定用户
+     *
+     * @param userId 接收者ID
+     * @param sessionId 会话ID
+     */
+    public void sendReadReceiptToUser(Long userId, Long sessionId) {
+        WebSocketSession session = USER_SESSIONS.get(userId);
+        if (session != null && session.isOpen()) {
+            try {
+                WebSocketEvent<Long> event = new WebSocketEvent<>("READ_RECEIPT", sessionId);
+                String jsonMsg = objectMapper.writeValueAsString(event);
                 session.sendMessage(new TextMessage(jsonMsg));
             } catch (IOException e) {
                 e.printStackTrace();

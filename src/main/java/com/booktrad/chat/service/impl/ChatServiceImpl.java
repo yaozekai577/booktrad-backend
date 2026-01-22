@@ -178,6 +178,15 @@ public class ChatServiceImpl implements ChatService {
                 chatMessageMapper.updateById(message);
             }
             System.out.println("已成功标记 " + unreadMessages.size() + " 条消息为已读");
+            
+            // 通知对方消息已读
+            ChatSession session = chatSessionMapper.selectById(sessionId);
+            if (session != null) {
+                Long otherUserId = session.getBuyerId().equals(currentUserId) 
+                        ? session.getSellerId() 
+                        : session.getBuyerId();
+                chatWebSocketHandler.sendReadReceiptToUser(otherUserId, sessionId);
+            }
         } else {
             System.out.println("没有需要标记的消息");
         }
