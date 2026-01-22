@@ -140,46 +140,27 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public List<ChatMessageVO> getMessageList(Long sessionId) {
-        return chatMessageMapper.selectMessageListBySessionId(sessionId);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void markMessagesAsRead(Long sessionId) {
         Long currentUserId = UserContext.getUserId();
         
-        System.out.println("=== 标记已读 Debug 信息 ===");
-        System.out.println("sessionId: " + sessionId);
-        System.out.println("currentUserId: " + currentUserId);
-
-        // 先查询该会话的所有消息（不加任何过滤条件）
-        LambdaQueryWrapper<ChatMessage> allMessagesQuery = new LambdaQueryWrapper<>();
-        allMessagesQuery.eq(ChatMessage::getSessionId, sessionId);
-        List<ChatMessage> allMessages = chatMessageMapper.selectList(allMessagesQuery);
-        System.out.println("该会话所有消息数: " + allMessages.size());
-        for (ChatMessage msg : allMessages) {
-            System.out.println("消息ID: " + msg.getId() + ", 发送者: " + msg.getSenderId() + ", 已读: " + msg.getIsRead());
-        }
-
-        // 先查询需要标记为已读的消息
+        // 获取消息列表
+        List<ChatMessageVO> messageList = chatMessageMapper.selectMessageListBySessionId(sessionId);
+        
+        // 自动标记对方发给我的未读消息为已读
         LambdaQueryWrapper<ChatMessage> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ChatMessage::getSessionId, sessionId)
                 .ne(ChatMessage::getSenderId, currentUserId)
                 .eq(ChatMessage::getIsRead, 0);
         
         List<ChatMessage> unreadMessages = chatMessageMapper.selectList(queryWrapper);
-        System.out.println("需要标记为已读的消息数: " + unreadMessages.size());
         
-        // 如果有未读消息，批量更新为已读
         if (!unreadMessages.isEmpty()) {
+            // 批量更新为已读
             for (ChatMessage message : unreadMessages) {
-                System.out.println("正在标记消息ID: " + message.getId() + " 为已读");
                 message.setIsRead(1);
                 chatMessageMapper.updateById(message);
             }
-            System.out.println("已成功标记 " + unreadMessages.size() + " 条消息为已读");
             
-            // 通知对方消息已读
+            // 通知对方消息已读（通过WebSocket）
             ChatSession session = chatSessionMapper.selectById(sessionId);
             if (session != null) {
                 Long otherUserId = session.getBuyerId().equals(currentUserId) 
@@ -187,9 +168,46 @@ public class ChatServiceImpl implements ChatService {
                         : session.getBuyerId();
                 chatWebSocketHandler.sendReadReceiptToUser(otherUserId, sessionId);
             }
-        } else {
-            System.out.println("没有需要标记的消息");
+            
+            // 更新返回的消息列表中的已读状态
+            for (ChatMessageVO messageVO : messageList) {
+                if (!messageVO.getSenderId().equals(currentUserId)) {
+                    messageVO.setIsRead(1);
+                }
+            }
         }
-        System.out.println("=== Debug 信息结束 ===");
+        
+        return messageList;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void markMessagesAsRead(Long sessionId) {
+        Long currentUserId = UserContext.getUserId();
+
+        // 查询需要标记为已读的消息（对方发给我的未读消息）
+        LambdaQueryWrapper<ChatMessage> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ChatMessage::getSessionId, sessionId)
+                .ne(ChatMessage::getSenderId, currentUserId)
+                .eq(ChatMessage::getIsRead, 0);
+        
+        List<ChatMessage> unreadMessages = chatMessageMapper.selectList(queryWrapper);
+        
+        // 如果有未读消息，批量更新为已读
+        if (!unreadMessages.isEmpty()) {
+            for (ChatMessage message : unreadMessages) {
+                message.setIsRead(1);
+                chatMessageMapper.updateById(message);
+            }
+            
+            // 通知对方消息已读（通过WebSocket）
+            ChatSession session = chatSessionMapper.selectById(sessionId);
+            if (session != null) {
+                Long otherUserId = session.getBuyerId().equals(currentUserId) 
+                        ? session.getSellerId() 
+                        : session.getBuyerId();
+                chatWebSocketHandler.sendReadReceiptToUser(otherUserId, sessionId);
+            }
+        }
     }
 }
