@@ -11,6 +11,7 @@ import com.booktrad.chat.mapper.ChatSessionMapper;
 import com.booktrad.chat.service.ChatService;
 import com.booktrad.chat.vo.ChatMessageVO;
 import com.booktrad.chat.vo.ChatSessionVO;
+import com.booktrad.chat.websocket.ChatWebSocketHandler;
 import com.booktrad.common.context.UserContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -38,6 +39,7 @@ public class ChatServiceImpl implements ChatService {
 
     private final ChatSessionMapper chatSessionMapper;
     private final ChatMessageMapper chatMessageMapper;
+    private final ChatWebSocketHandler chatWebSocketHandler;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -117,10 +119,23 @@ public class ChatServiceImpl implements ChatService {
 
         // 查询并返回消息详情
         List<ChatMessageVO> messages = chatMessageMapper.selectMessageListBySessionId(sendDTO.getSessionId());
-        return messages.stream()
+        ChatMessageVO messageVO = messages.stream()
                 .filter(m -> m.getId().equals(message.getId()))
                 .findFirst()
                 .orElse(null);
+
+        // 通过WebSocket推送消息给对方
+        if (messageVO != null) {
+            ChatSession currentSession = chatSessionMapper.selectById(sendDTO.getSessionId());
+            if (currentSession != null) {
+                Long recipientId = currentSession.getBuyerId().equals(currentUserId) 
+                        ? currentSession.getSellerId() 
+                        : currentSession.getBuyerId();
+                chatWebSocketHandler.sendMessageToUser(recipientId, messageVO);
+            }
+        }
+
+        return messageVO;
     }
 
     @Override

@@ -105,6 +105,11 @@
             <artifactId>aliyun-sdk-oss</artifactId>
             <version>3.17.1</version>
         </dependency>
+        <!-- WebSocket -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
