@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 项目名称：booktrad
+ * 项目名称：booktrading
  * 版本：V1.0
  *
  * @Author yaozekai
