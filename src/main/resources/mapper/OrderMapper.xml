@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.booktrad.order.mapper.OrderMapper">
+
+    <!-- 订单详情结果映射 -->
+    <resultMap id="OrderVOMap" type="com.booktrad.order.vo.OrderVO">
+        <id column="id" property="id"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="buyer_id" property="buyerId"/>
+        <result column="buyer_name" property="buyerName"/>
+        <result column="buyer_phone" property="buyerPhone"/>
+        <result column="seller_id" property="sellerId"/>
+        <result column="seller_name" property="sellerName"/>
+        <result column="seller_phone" property="sellerPhone"/>
+        <result column="book_id" property="bookId"/>
+        <result column="book_title" property="bookTitle"/>
+        <result column="book_cover" property="bookCover"/>
+        <result column="original_price" property="originalPrice"/>
+        <result column="price" property="price"/>
+        <result column="trade_type" property="tradeType"/>
+        <result column="meet_location" property="meetLocation"/>
+        <result column="meet_time" property="meetTime"/>
+        <result column="remark" property="remark"/>
+        <result column="cancel_reason" property="cancelReason"/>
+        <result column="status" property="status"/>
+        <result column="buyer_confirmed" property="buyerConfirmed"/>
+        <result column="seller_confirmed" property="sellerConfirmed"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="confirmed_at" property="confirmedAt"/>
+        <result column="buyer_confirmed_at" property="buyerConfirmedAt"/>
+        <result column="seller_confirmed_at" property="sellerConfirmedAt"/>
+        <result column="completed_at" property="completedAt"/>
+        <result column="cancelled_at" property="cancelledAt"/>
+    </resultMap>
+
+    <!-- 查询订单详情 -->
+    <select id="selectOrderDetailById" resultMap="OrderVOMap">
+        SELECT
+            o.id,
+            o.order_no,
+            o.buyer_id,
+            buyer.username AS buyer_name,
+            o.buyer_phone,
+            o.seller_id,
+            seller.username AS seller_name,
+            o.seller_phone,
+            o.book_id,
+            o.book_title,
+            o.book_cover,
+            o.original_price,
+            o.price,
+            o.trade_type,
+            o.meet_location,
+            o.meet_time,
+            o.remark,
+            o.cancel_reason,
+            o.status,
+            o.buyer_confirmed,
+            o.seller_confirmed,
+            o.created_at,
+            o.confirmed_at,
+            o.buyer_confirmed_at,
+            o.seller_confirmed_at,
+            o.completed_at,
+            o.cancelled_at
+        FROM book_order o
+        LEFT JOIN user buyer ON o.buyer_id = buyer.id
+        LEFT JOIN user seller ON o.seller_id = seller.id
+        WHERE o.id = #{orderId}
+    </select>
+
+    <!-- 查询用户的订单列表（买家或卖家） -->
+    <select id="selectOrderListByUserId" resultMap="OrderVOMap">
+        SELECT
+            o.id,
+            o.order_no,
+            o.buyer_id,
+            buyer.username AS buyer_name,
+            o.buyer_phone,
+            o.seller_id,
+            seller.username AS seller_name,
+            o.seller_phone,
+            o.book_id,
+            o.book_title,
+            o.book_cover,
+            o.original_price,
+            o.price,
+            o.trade_type,
+            o.meet_location,
+            o.meet_time,
+            o.remark,
+            o.cancel_reason,
+            o.status,
+            o.buyer_confirmed,
+            o.seller_confirmed,
+            o.created_at,
+            o.confirmed_at,
+            o.buyer_confirmed_at,
+            o.seller_confirmed_at,
+            o.completed_at,
+            o.cancelled_at
+        FROM book_order o
+        LEFT JOIN user buyer ON o.buyer_id = buyer.id
+        LEFT JOIN user seller ON o.seller_id = seller.id
+        WHERE o.buyer_id = #{userId} OR o.seller_id = #{userId}
+        ORDER BY o.created_at DESC
+    </select>
+
+    <!-- 查询买家的订单列表 -->
+    <select id="selectBuyerOrderList" resultMap="OrderVOMap">
+        SELECT
+            o.id,
+            o.order_no,
+            o.buyer_id,
+            buyer.username AS buyer_name,
+            o.buyer_phone,
+            o.seller_id,
+            seller.username AS seller_name,
+            o.seller_phone,
+            o.book_id,
+            o.book_title,
+            o.book_cover,
+            o.original_price,
+            o.price,
+            o.trade_type,
+            o.meet_location,
+            o.meet_time,
+            o.remark,
+            o.cancel_reason,
+            o.status,
+            o.buyer_confirmed,
+            o.seller_confirmed,
+            o.created_at,
+            o.confirmed_at,
+            o.buyer_confirmed_at,
+            o.seller_confirmed_at,
+            o.completed_at,
+            o.cancelled_at
+        FROM book_order o
+        LEFT JOIN user buyer ON o.buyer_id = buyer.id
+        LEFT JOIN user seller ON o.seller_id = seller.id
+        WHERE o.buyer_id = #{buyerId}
+        ORDER BY o.created_at DESC
+    </select>
+
+    <!-- 查询卖家的订单列表 -->
+    <select id="selectSellerOrderList" resultMap="OrderVOMap">
+        SELECT
+            o.id,
+            o.order_no,
+            o.buyer_id,
+            buyer.username AS buyer_name,
+            o.buyer_phone,
+            o.seller_id,
+            seller.username AS seller_name,
+            o.seller_phone,
+            o.book_id,
+            o.book_title,
+            o.book_cover,
+            o.original_price,
+            o.price,
+            o.trade_type,
+            o.meet_location,
+            o.meet_time,
+            o.remark,
+            o.cancel_reason,
+            o.status,
+            o.buyer_confirmed,
+            o.seller_confirmed,
+            o.created_at,
+            o.confirmed_at,
+            o.buyer_confirmed_at,
+            o.seller_confirmed_at,
+            o.completed_at,
+            o.cancelled_at
+        FROM book_order o
+        LEFT JOIN user buyer ON o.buyer_id = buyer.id
+        LEFT JOIN user seller ON o.seller_id = seller.id
+        WHERE o.seller_id = #{sellerId}
+        ORDER BY o.created_at DESC
+    </select>
+
+</mapper>
