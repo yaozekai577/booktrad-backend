@@ -29,4 +29,22 @@
         </where>
         ORDER BY created_at DESC
     </select>
+
+    <!-- 根据ID查询用户（用于订单创建，忽略逻辑删除） -->
+    <select id="selectUserForOrder" resultType="com.booktrad.user.entity.User">
+        SELECT
+            id,
+            username,
+            password,
+            email,
+            phone,
+            role,
+            status,
+            created_at,
+            updated_at,
+            deleted_at,
+            extra_info
+        FROM user
+        WHERE id = #{id}
+    </select>
 </mapper>

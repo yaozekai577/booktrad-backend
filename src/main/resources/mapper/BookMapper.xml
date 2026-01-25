@@ -92,4 +92,34 @@
         WHERE id = #{id}
     </update>
 
+    <!-- 根据ID查询书籍（用于订单创建，忽略逻辑删除） -->
+    <select id="selectBookForOrder" resultType="com.booktrad.book.entity.Book">
+        SELECT
+            id,
+            seller_id,
+            title,
+            author,
+            publisher,
+            isbn,
+            category_id,
+            price,
+            original_price,
+            book_condition,
+            description,
+            cover_image,
+            status,
+            is_banned,
+            view_count,
+            trade_type,
+            defect_desc,
+            publish_time,
+            category_path,
+            sold_at,
+            created_at,
+            updated_at,
+            deleted_at
+        FROM book
+        WHERE id = #{id}
+    </select>
+
 </mapper>

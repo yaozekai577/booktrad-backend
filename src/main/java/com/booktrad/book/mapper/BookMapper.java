@@ -44,4 +44,11 @@ public interface BookMapper extends BaseMapper<Book> {
      * @return 影响行数
      */
     int incrementViewCount(@Param("id") Long id);
+
+    /**
+     * 根据ID查询书籍（用于订单创建，忽略逻辑删除）
+     * @param id 书籍ID
+     * @return 书籍实体
+     */
+    Book selectBookForOrder(@Param("id") Long id);
 }

@@ -1,6 +1,5 @@
 package com.booktrad.order.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.booktrad.book.entity.Book;
 import com.booktrad.book.mapper.BookMapper;
 import com.booktrad.common.context.UserContext;
@@ -42,49 +41,62 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public OrderVO createOrder(OrderCreateDTO createDTO) {
-        Long currentUserId = UserContext.getUserId();
+        try {
+            Long currentUserId = UserContext.getUserId();
+            if (currentUserId == null) {
+                throw new RuntimeException("用户未登录");
+            }
 
-        // 查询书籍信息
-        Book book = bookMapper.selectById(createDTO.getBookId());
-        if (book == null) {
-            throw new RuntimeException("书籍不存在");
+            // 查询书籍信息（使用手写SQL）
+            Book book = bookMapper.selectBookForOrder(createDTO.getBookId());
+            if (book == null) {
+                throw new RuntimeException("书籍不存在");
+            }
+
+            // 验证卖家ID是否匹配
+            if (!book.getSellerId().equals(createDTO.getSellerId())) {
+                throw new RuntimeException("卖家信息不匹配");
+            }
+
+            // 查询买家信息（使用手写SQL）
+            User buyer = userMapper.selectUserForOrder(currentUserId);
+            if (buyer == null) {
+                throw new RuntimeException("买家用户不存在");
+            }
+
+            // 查询卖家信息（使用手写SQL）
+            User seller = userMapper.selectUserForOrder(createDTO.getSellerId());
+            if (seller == null) {
+                throw new RuntimeException("卖家用户不存在");
+            }
+
+            // 创建订单
+            BookOrder order = new BookOrder();
+            order.setOrderNo(generateOrderNo());
+            order.setBuyerId(currentUserId);
+            order.setSellerId(createDTO.getSellerId());
+            order.setBookId(createDTO.getBookId());
+            order.setBookTitle(book.getTitle());
+            order.setBookCover(book.getCoverImage());
+            order.setOriginalPrice(book.getPrice());
+            order.setPrice(createDTO.getPrice());
+            order.setTradeType(1); // 默认线下面交
+            order.setMeetLocation(createDTO.getMeetLocation());
+            order.setMeetTime(createDTO.getMeetTime());
+            order.setBuyerPhone(createDTO.getBuyerPhone());
+            order.setSellerPhone(seller.getPhone() != null ? seller.getPhone() : "");
+            order.setRemark(createDTO.getRemark());
+            order.setStatus(1); // 待确认
+            order.setBuyerConfirmed(0);
+            order.setSellerConfirmed(0);
+
+            orderMapper.insert(order);
+
+            return getOrderDetail(order.getId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("创建订单失败：" + e.getMessage(), e);
         }
-
-        // 查询买家信息
-        User buyer = userMapper.selectById(currentUserId);
-        if (buyer == null) {
-            throw new RuntimeException("用户不存在");
-        }
-
-        // 查询卖家信息
-        User seller = userMapper.selectById(createDTO.getSellerId());
-        if (seller == null) {
-            throw new RuntimeException("卖家不存在");
-        }
-
-        // 创建订单
-        BookOrder order = new BookOrder();
-        order.setOrderNo(generateOrderNo());
-        order.setBuyerId(currentUserId);
-        order.setSellerId(createDTO.getSellerId());
-        order.setBookId(createDTO.getBookId());
-        order.setBookTitle(book.getTitle());
-        order.setBookCover(book.getCoverImage());
-        order.setOriginalPrice(book.getPrice());
-        order.setPrice(createDTO.getPrice());
-        order.setTradeType(1); // 默认线下面交
-        order.setMeetLocation(createDTO.getMeetLocation());
-        order.setMeetTime(createDTO.getMeetTime());
-        order.setBuyerPhone(createDTO.getBuyerPhone());
-        order.setSellerPhone(seller.getPhone());
-        order.setRemark(createDTO.getRemark());
-        order.setStatus(1); // 待确认
-        order.setBuyerConfirmed(0);
-        order.setSellerConfirmed(0);
-
-        orderMapper.insert(order);
-
-        return getOrderDetail(order.getId());
     }
 
     @Override

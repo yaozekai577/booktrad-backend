@@ -38,4 +38,11 @@ public interface UserMapper extends BaseMapper<User> {
      * @return 用户列表
      */
     List<User> selectUsersByCondition(Map<String, Object> condition);
+    
+    /**
+     * 根据ID查询用户（用于订单创建，忽略逻辑删除）
+     * @param id 用户ID
+     * @return 用户信息
+     */
+    User selectUserForOrder(Long id);
 }
