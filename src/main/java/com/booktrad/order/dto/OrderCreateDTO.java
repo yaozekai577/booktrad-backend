@@ -41,8 +41,11 @@ public class OrderCreateDTO {
 
     /**
      * 约定面交时间
+     * 支持格式：
+     * 1. ISO 8601: 2026-01-25T23:08:00
+     * 2. 标准格式: 2026-01-25 23:08:00
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime meetTime;
 
     /**
