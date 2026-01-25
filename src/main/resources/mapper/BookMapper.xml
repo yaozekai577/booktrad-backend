@@ -39,6 +39,7 @@
     <select id="selectBookPage" resultType="com.booktrad.book.vo.BookPageVO">
         SELECT
             b.id AS bookId,
+            b.seller_id AS sellerId,
             b.title,
             b.author,
             SUBSTRING_INDEX(b.cover_image, ',', 1) AS coverImg,

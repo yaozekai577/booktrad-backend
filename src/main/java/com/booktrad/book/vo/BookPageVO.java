@@ -24,6 +24,11 @@ public class BookPageVO {
     private Long bookId;
 
     /**
+     * 卖家用户ID
+     */
+    private Long sellerId;
+
+    /**
      * 书名
      */
     private String title;
