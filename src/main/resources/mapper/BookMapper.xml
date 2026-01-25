@@ -122,4 +122,13 @@
         WHERE id = #{id}
     </select>
 
+    <!-- 更新书籍状态为已售出 -->
+    <update id="updateBookStatusToSold">
+        UPDATE book
+        SET status = 3,
+            sold_at = #{soldAt},
+            updated_at = NOW()
+        WHERE id = #{bookId}
+    </update>
+
 </mapper>

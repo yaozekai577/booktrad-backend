@@ -154,9 +154,12 @@ public class OrderServiceImpl implements OrderService {
         // 检查是否双方都已确认
         if (order.getSellerConfirmed() == 1) {
             // 双方都确认，订单完成
+            LocalDateTime completedTime = LocalDateTime.now();
             order.setStatus(3);
-            order.setCompletedAt(LocalDateTime.now());
-            // TODO: 更新书籍状态为已售出
+            order.setCompletedAt(completedTime);
+            
+            // 更新书籍状态为已售出
+            bookMapper.updateBookStatusToSold(order.getBookId(), completedTime);
         }
 
         orderMapper.updateById(order);
@@ -191,9 +194,12 @@ public class OrderServiceImpl implements OrderService {
         // 检查是否双方都已确认
         if (order.getBuyerConfirmed() == 1) {
             // 双方都确认，订单完成
+            LocalDateTime completedTime = LocalDateTime.now();
             order.setStatus(3);
-            order.setCompletedAt(LocalDateTime.now());
-            // TODO: 更新书籍状态为已售出
+            order.setCompletedAt(completedTime);
+            
+            // 更新书籍状态为已售出
+            bookMapper.updateBookStatusToSold(order.getBookId(), completedTime);
         }
 
         orderMapper.updateById(order);
