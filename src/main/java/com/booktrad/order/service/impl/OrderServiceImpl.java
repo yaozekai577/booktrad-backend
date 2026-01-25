@@ -58,6 +58,11 @@ public class OrderServiceImpl implements OrderService {
                 throw new RuntimeException("卖家信息不匹配");
             }
 
+            // 验证书籍状态（只能对在售的书籍创建订单）
+            if (book.getStatus() != 1) {
+                throw new RuntimeException("书籍当前不可购买");
+            }
+
             // 查询买家信息（使用手写SQL）
             User buyer = userMapper.selectUserForOrder(currentUserId);
             if (buyer == null) {
@@ -91,6 +96,9 @@ public class OrderServiceImpl implements OrderService {
             order.setSellerConfirmed(0);
 
             orderMapper.insert(order);
+
+            // 将书籍状态改为交易中
+            bookMapper.updateBookStatus(order.getBookId(), 3);
 
             return getOrderDetail(order.getId());
         } catch (Exception e) {
@@ -237,6 +245,9 @@ public class OrderServiceImpl implements OrderService {
         order.setCancelReason(cancelDTO.getCancelReason());
         order.setCancelledAt(LocalDateTime.now());
         orderMapper.updateById(order);
+
+        // 将书籍状态恢复为在售
+        bookMapper.updateBookStatus(order.getBookId(), 1);
 
         return getOrderDetail(orderId);
     }

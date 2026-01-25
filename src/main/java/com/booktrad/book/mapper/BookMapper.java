@@ -59,4 +59,12 @@ public interface BookMapper extends BaseMapper<Book> {
      * @return 影响行数
      */
     int updateBookStatusToSold(@Param("bookId") Long bookId, @Param("soldAt") java.time.LocalDateTime soldAt);
+
+    /**
+     * 更新书籍状态
+     * @param bookId 书籍ID
+     * @param status 状态：1-在售 2-已下架 3-交易中 4-已售出
+     * @return 影响行数
+     */
+    int updateBookStatus(@Param("bookId") Long bookId, @Param("status") Integer status);
 }

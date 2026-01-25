@@ -96,7 +96,7 @@ public class Book {
     private String coverImage;
 
     /**
-     * 状态：1-在售 2-已下架 3-已售出
+     * 状态：1-在售 2-已下架 3-交易中 4-已售出
      * 对应数据库字段：status
      */
     @TableField("status")

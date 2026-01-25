@@ -125,8 +125,16 @@
     <!-- 更新书籍状态为已售出 -->
     <update id="updateBookStatusToSold">
         UPDATE book
-        SET status = 3,
+        SET status = 4,
             sold_at = #{soldAt},
+            updated_at = NOW()
+        WHERE id = #{bookId}
+    </update>
+
+    <!-- 更新书籍状态 -->
+    <update id="updateBookStatus">
+        UPDATE book
+        SET status = #{status},
             updated_at = NOW()
         WHERE id = #{bookId}
     </update>
