@@ -170,6 +170,43 @@ public class BookServiceImpl implements BookService {
         return getBookDetail(bookUpdateDTO.getId());
     }
 
+    @Override
+    public BookVO offShelfBook(Long bookId) {
+        // 1. 参数校验
+        if (bookId == null) {
+            throw new RuntimeException("书籍ID不能为空");
+        }
+
+        // 2. 查询书籍信息
+        Book book = bookMapper.selectBookForOrder(bookId);
+        if (book == null) {
+            throw new RuntimeException("书籍不存在");
+        }
+
+        // 3. 权限校验：只有卖家本人可以下架
+        Long currentUserId = UserContext.getUserId();
+        if (currentUserId == null) {
+            throw new RuntimeException("用户未登录");
+        }
+        if (!book.getSellerId().equals(currentUserId)) {
+            throw new RuntimeException("无权下架此书籍");
+        }
+
+        // 4. 状态校验：只有在售的书籍可以下架
+        if (book.getStatus() != 1) {
+            throw new RuntimeException("只有在售状态的书籍可以下架");
+        }
+
+        // 5. 更新书籍状态为已下架
+        int result = bookMapper.updateBookStatus(bookId, 2);
+        if (result <= 0) {
+            throw new RuntimeException("下架失败");
+        }
+
+        // 6. 返回下架后的书籍详情
+        return getBookDetail(bookId);
+    }
+
     /**
      * 处理封面图片，将String转为List<String>
      * 假设封面图片以逗号分隔，例如："url1,url2,url3"

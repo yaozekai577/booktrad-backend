@@ -111,4 +111,19 @@ public class BookController {
             return Result.error(e.getMessage());
         }
     }
+
+    /**
+     * 卖家下架书籍
+     * @param id 书籍ID
+     * @return 下架后的书籍详情
+     */
+    @PutMapping("/off-shelf/{id}")
+    public Result<BookVO> offShelfBook(@PathVariable Long id) {
+        try {
+            BookVO bookVO = bookService.offShelfBook(id);
+            return Result.success("下架成功", bookVO);
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
+    }
 }

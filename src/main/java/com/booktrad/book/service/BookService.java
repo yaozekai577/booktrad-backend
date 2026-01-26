@@ -50,4 +50,11 @@ public interface BookService {
      * @return 更新后的书籍详情
      */
     BookVO updateBook(BookUpdateDTO bookUpdateDTO);
+
+    /**
+     * 卖家下架书籍
+     * @param bookId 书籍ID
+     * @return 下架后的书籍详情
+     */
+    BookVO offShelfBook(Long bookId);
 }
