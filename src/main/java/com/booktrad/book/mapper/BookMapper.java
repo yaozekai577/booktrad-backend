@@ -74,4 +74,12 @@ public interface BookMapper extends BaseMapper<Book> {
      * @return 影响行数
      */
     int updateBookInfo(Book book);
+
+    /**
+     * 分页查询卖家的所有书籍（包括已下架、已封禁的）
+     * @param page 分页对象
+     * @param sellerId 卖家ID
+     * @return 分页结果
+     */
+    IPage<BookPageVO> selectSellerBookPage(IPage<BookPageVO> page, @Param("sellerId") Long sellerId);
 }

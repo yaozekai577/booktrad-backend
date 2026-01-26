@@ -57,4 +57,12 @@ public interface BookService {
      * @return 下架后的书籍详情
      */
     BookVO offShelfBook(Long bookId);
+
+    /**
+     * 分页查询卖家的所有书籍（包括已下架、已封禁的）
+     * @param page 页码
+     * @param size 每页数量
+     * @return 分页结果
+     */
+    IPage<BookPageVO> getSellerBookPage(Integer page, Integer size);
 }

@@ -176,4 +176,24 @@
         WHERE id = #{id}
     </update>
 
+    <!-- 分页查询卖家的所有书籍（包括已下架、已封禁的） -->
+    <select id="selectSellerBookPage" resultType="com.booktrad.book.vo.BookPageVO">
+        SELECT
+            b.id AS bookId,
+            b.seller_id AS sellerId,
+            b.title,
+            b.author,
+            SUBSTRING_INDEX(b.cover_image, ',', 1) AS coverImg,
+            b.price,
+            b.original_price AS originalPrice,
+            b.status,
+            b.is_banned AS isBanned,
+            b.view_count AS viewCount,
+            b.created_at AS createdAt
+        FROM book b
+        WHERE b.seller_id = #{sellerId}
+        AND b.deleted_at IS NULL
+        ORDER BY b.created_at DESC
+    </select>
+
 </mapper>

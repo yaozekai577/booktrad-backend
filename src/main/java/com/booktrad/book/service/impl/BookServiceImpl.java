@@ -207,6 +207,27 @@ public class BookServiceImpl implements BookService {
         return getBookDetail(bookId);
     }
 
+    @Override
+    public IPage<BookPageVO> getSellerBookPage(Integer page, Integer size) {
+        // 1. 获取当前登录用户ID
+        Long sellerId = UserContext.getUserId();
+        if (sellerId == null) {
+            throw new RuntimeException("用户未登录");
+        }
+
+        // 2. 设置默认值
+        int currentPage = page != null && page > 0 ? page : 1;
+        int pageSize = size != null && size > 0 ? size : 10;
+
+        // 3. 创建分页对象
+        Page<BookPageVO> pageParam = new Page<>(currentPage, pageSize);
+
+        // 4. 调用Mapper查询分页数据
+        IPage<BookPageVO> bookPage = bookMapper.selectSellerBookPage(pageParam, sellerId);
+
+        return bookPage;
+    }
+
     /**
      * 处理封面图片，将String转为List<String>
      * 假设封面图片以逗号分隔，例如："url1,url2,url3"

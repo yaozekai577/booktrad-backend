@@ -62,4 +62,24 @@ public class BookPageVO {
      * 卖家位置（如学院/校区）
      */
     private String sellerLocation;
+
+    /**
+     * 书籍状态：1-在售 2-已下架 3-交易中 4-已售出
+     */
+    private Integer status;
+
+    /**
+     * 是否封禁：0-正常 1-封禁
+     */
+    private Integer isBanned;
+
+    /**
+     * 浏览次数
+     */
+    private Integer viewCount;
+
+    /**
+     * 创建时间
+     */
+    private java.time.LocalDateTime createdAt;
 }

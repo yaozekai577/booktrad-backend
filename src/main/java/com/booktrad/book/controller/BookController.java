@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -122,6 +123,24 @@ public class BookController {
         try {
             BookVO bookVO = bookService.offShelfBook(id);
             return Result.success("下架成功", bookVO);
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 分页查询卖家的所有书籍（包括已下架、已封禁的）
+     * @param page 页码
+     * @param size 每页数量
+     * @return 分页结果
+     */
+    @GetMapping("/my-books")
+    public Result<IPage<BookPageVO>> getSellerBookPage(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        try {
+            IPage<BookPageVO> bookPage = bookService.getSellerBookPage(page, size);
+            return Result.success(bookPage);
         } catch (RuntimeException e) {
             return Result.error(e.getMessage());
         }
