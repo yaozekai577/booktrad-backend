@@ -73,16 +73,32 @@
         </if>
         <choose>
             <when test="query.sortField != null and query.sortField == 'price'.toString() and query.sortOrder == 'asc'.toString()">
-                ORDER BY b.price ASC
+                ORDER BY 
+                <if test="query.currentUserId != null">
+                    CASE WHEN b.seller_id = #{query.currentUserId} THEN 1 ELSE 0 END ASC,
+                </if>
+                b.price ASC
             </when>
             <when test="query.sortField != null and query.sortField == 'price'.toString() and query.sortOrder == 'desc'.toString()">
-                ORDER BY b.price DESC
+                ORDER BY 
+                <if test="query.currentUserId != null">
+                    CASE WHEN b.seller_id = #{query.currentUserId} THEN 1 ELSE 0 END ASC,
+                </if>
+                b.price DESC
             </when>
             <when test="query.sortField != null and query.sortField == 'createdAt'.toString() and query.sortOrder == 'asc'.toString()">
-                ORDER BY b.created_at ASC
+                ORDER BY 
+                <if test="query.currentUserId != null">
+                    CASE WHEN b.seller_id = #{query.currentUserId} THEN 1 ELSE 0 END ASC,
+                </if>
+                b.created_at ASC
             </when>
             <otherwise>
-                ORDER BY b.created_at DESC
+                ORDER BY 
+                <if test="query.currentUserId != null">
+                    CASE WHEN b.seller_id = #{query.currentUserId} THEN 1 ELSE 0 END ASC,
+                </if>
+                b.created_at DESC
             </otherwise>
         </choose>
     </select>

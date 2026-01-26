@@ -103,4 +103,9 @@ public class BookQueryDTO {
      * 每页数量
      */
     private Integer size;
+
+    /**
+     * 当前登录用户ID，用于排序（自己发布的书排在后面）
+     */
+    private Long currentUserId;
 }

@@ -45,6 +45,12 @@ public class BookController {
     @GetMapping("/page")
     public Result<IPage<BookPageVO>> getBookPage(BookQueryDTO bookQueryDTO) {
         try {
+            // 设置当前登录用户ID，用于排序优化
+            Long currentUserId = UserContext.getUserId();
+            if (currentUserId != null) {
+                bookQueryDTO.setCurrentUserId(currentUserId);
+            }
+            
             IPage<BookPageVO> bookPage = bookService.getBookPage(bookQueryDTO);
             return Result.success(bookPage);
         } catch (RuntimeException e) {
