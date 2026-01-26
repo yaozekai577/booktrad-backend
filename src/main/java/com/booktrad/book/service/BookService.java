@@ -3,6 +3,7 @@ package com.booktrad.book.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.booktrad.book.dto.BookPublishDTO;
 import com.booktrad.book.dto.BookQueryDTO;
+import com.booktrad.book.dto.BookUpdateDTO;
 import com.booktrad.book.vo.BookPageVO;
 import com.booktrad.book.vo.BookPublishVO;
 import com.booktrad.book.vo.BookVO;
@@ -42,4 +43,11 @@ public interface BookService {
      * @return 发布结果，包含书籍ID
      */
     BookPublishVO publishBook(BookPublishDTO bookPublishDTO, Long sellerId);
+
+    /**
+     * 更新书籍信息
+     * @param bookUpdateDTO 书籍更新DTO
+     * @return 更新后的书籍详情
+     */
+    BookVO updateBook(BookUpdateDTO bookUpdateDTO);
 }

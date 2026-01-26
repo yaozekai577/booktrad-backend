@@ -10,96 +10,81 @@ import java.math.BigDecimal;
  *
  * @Author yaozekai
  * @Email 2321593248@qq.com
- * @Description 更新书籍请求DTO，用于接收更新书籍的请求参数
- * @Date 2025/12/24 22:00
- * Copyrigt (C) 2025-2026 All Right Reserved
+ * @Description 书籍更新DTO，用于接收修改书籍的请求参数
+ * @Date 2026/1/26
+ * Copyright (C) 2025-2026 All Right Reserved
  * 注意：本内容为个人毕设
  */
 @Data
 public class BookUpdateDTO {
 
     /**
-     * 书籍ID，用于标识要更新的书籍
+     * 书籍ID（必填）
      */
     private Long id;
 
     /**
-     * 书名（可选）
+     * 书名
      */
     private String title;
 
     /**
-     * 作者（可选）
+     * 作者
      */
     private String author;
 
     /**
-     * 出版社（可选）
+     * 出版社
      */
     private String publisher;
 
     /**
-     * ISBN编号（可选）
+     * ISBN编号
      */
     private String isbn;
 
     /**
-     * 书籍分类ID（可选）
+     * 书籍分类ID
      */
     private Long categoryId;
 
     /**
-     * 出售价格（可选）
+     * 出售价格
      */
     private BigDecimal price;
 
     /**
-     * 原价（可选）
+     * 原价
      */
     private BigDecimal originalPrice;
 
     /**
-     * 成色：1-全新 2-九成新 3-八成新 4-明显使用痕迹（可选）
+     * 成色：1-全新 2-九成新 3-八成新 4-明显使用痕迹
      */
     private Integer bookCondition;
 
     /**
-     * 书籍描述（使用情况、备注等）（可选）
+     * 书籍描述（使用情况、备注等）
      */
     private String description;
 
     /**
-     * 封面图片URL（可选）
-     */
-    private String coverImage;
-
-    /**
-     * 交易方式：自取/邮寄（可选）
-     */
-    private String tradeType;
-
-    /**
-     * 瑕疵说明（可选）
+     * 瑕疵说明
      */
     private String defectDesc;
 
     /**
-     * 出版时间 yyyy-MM（可选）
+     * 封面图片URL（多个图片以逗号分隔）
+     */
+    private String coverImage;
+
+    /**
+     * 交易方式：自取/邮寄
+     */
+    private String tradeType;
+
+    /**
+     * 出版时间 yyyy-MM
      */
     private String publishTime;
-
-    /**
-     * 分类路径（可选）
-     */
-    private String categoryPath;
-
-    /**
-     * 成交时间（可选，通常由系统自动设置）
-     */
-    private String soldAt;
-
-    /**
-     * 状态：1-在售 2-已下架 3-已售出（可选）
-     */
-    private Integer status;
 }

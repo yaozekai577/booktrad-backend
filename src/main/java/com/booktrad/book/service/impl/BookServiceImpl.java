@@ -4,12 +4,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.booktrad.book.dto.BookPublishDTO;
 import com.booktrad.book.dto.BookQueryDTO;
+import com.booktrad.book.dto.BookUpdateDTO;
 import com.booktrad.book.entity.Book;
 import com.booktrad.book.mapper.BookMapper;
 import com.booktrad.book.service.BookService;
 import com.booktrad.book.vo.BookPageVO;
 import com.booktrad.book.vo.BookPublishVO;
 import com.booktrad.book.vo.BookVO;
+import com.booktrad.common.context.UserContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -120,6 +122,52 @@ public class BookServiceImpl implements BookService {
         BookPublishVO bookPublishVO = new BookPublishVO();
         bookPublishVO.setBookId(book.getId());
         return bookPublishVO;
+    }
+
+    @Override
+    public BookVO updateBook(BookUpdateDTO bookUpdateDTO) {
+        // 1. 参数校验
+        if (bookUpdateDTO.getId() == null) {
+            throw new RuntimeException("书籍ID不能为空");
+        }
+        if (bookUpdateDTO.getTitle() == null || bookUpdateDTO.getTitle().trim().isEmpty()) {
+            throw new RuntimeException("书名不能为空");
+        }
+        if (bookUpdateDTO.getPrice() == null || bookUpdateDTO.getPrice().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("出售价格必须大于0");
+        }
+
+        // 2. 查询原书籍信息
+        Book existingBook = bookMapper.selectBookForOrder(bookUpdateDTO.getId());
+        if (existingBook == null) {
+            throw new RuntimeException("书籍不存在");
+        }
+
+        // 3. 权限校验：只有卖家本人可以修改
+        Long currentUserId = UserContext.getUserId();
+        if (currentUserId == null) {
+            throw new RuntimeException("用户未登录");
+        }
+        if (!existingBook.getSellerId().equals(currentUserId)) {
+            throw new RuntimeException("无权修改此书籍");
+        }
+
+        // 4. 状态校验：只有在售和已下架的书籍可以修改
+        if (existingBook.getStatus() != 1 && existingBook.getStatus() != 2) {
+            throw new RuntimeException("当前状态的书籍不允许修改");
+        }
+
+        // 5. 将DTO数据复制到实体
+        BeanUtils.copyProperties(bookUpdateDTO, existingBook);
+
+        // 6. 更新数据库（使用手写SQL）
+        int result = bookMapper.updateBookInfo(existingBook);
+        if (result <= 0) {
+            throw new RuntimeException("书籍更新失败");
+        }
+
+        // 7. 返回更新后的书籍详情
+        return getBookDetail(bookUpdateDTO.getId());
     }
 
     /**

@@ -156,4 +156,24 @@
         WHERE id = #{bookId}
     </update>
 
+    <!-- 更新书籍信息 -->
+    <update id="updateBookInfo">
+        UPDATE book
+        SET title = #{title},
+            author = #{author},
+            publisher = #{publisher},
+            isbn = #{isbn},
+            category_id = #{categoryId},
+            price = #{price},
+            original_price = #{originalPrice},
+            book_condition = #{bookCondition},
+            description = #{description},
+            defect_desc = #{defectDesc},
+            cover_image = #{coverImage},
+            trade_type = #{tradeType},
+            publish_time = #{publishTime},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
 </mapper>

@@ -3,6 +3,7 @@ package com.booktrad.book.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.booktrad.book.dto.BookPublishDTO;
 import com.booktrad.book.dto.BookQueryDTO;
+import com.booktrad.book.dto.BookUpdateDTO;
 import com.booktrad.book.service.BookService;
 import com.booktrad.book.vo.BookPageVO;
 import com.booktrad.book.vo.BookPublishVO;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -90,6 +92,21 @@ public class BookController {
         try {
             BookVO bookVO = bookService.getBookDetail(id);
             return Result.success(bookVO);
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 更新书籍信息
+     * @param bookUpdateDTO 书籍更新DTO
+     * @return 更新后的书籍详情
+     */
+    @PutMapping("/update")
+    public Result<BookVO> updateBook(@RequestBody BookUpdateDTO bookUpdateDTO) {
+        try {
+            BookVO bookVO = bookService.updateBook(bookUpdateDTO);
+            return Result.success("更新成功", bookVO);
         } catch (RuntimeException e) {
             return Result.error(e.getMessage());
         }

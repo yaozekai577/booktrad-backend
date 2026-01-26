@@ -67,4 +67,11 @@ public interface BookMapper extends BaseMapper<Book> {
      * @return 影响行数
      */
     int updateBookStatus(@Param("bookId") Long bookId, @Param("status") Integer status);
+
+    /**
+     * 更新书籍信息
+     * @param book 书籍实体
+     * @return 影响行数
+     */
+    int updateBookInfo(Book book);
 }
