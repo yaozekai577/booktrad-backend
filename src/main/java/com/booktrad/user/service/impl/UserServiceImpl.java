@@ -2,6 +2,7 @@ package com.booktrad.user.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.booktrad.common.utils.JwtUtil;
+import com.booktrad.user.dto.ChangePasswordDTO;
 import com.booktrad.user.dto.RegisterDTO;
 import com.booktrad.user.entity.User;
 import com.booktrad.user.mapper.UserMapper;
@@ -131,5 +132,56 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         
         // 6. 返回注册成功的用户信息（不包含密码）
         return user;
+    }
+
+    /**
+     * 修改密码
+     * @param userId 用户ID
+     * @param changePasswordDTO 修改密码DTO
+     */
+    @Override
+    public void changePassword(Long userId, ChangePasswordDTO changePasswordDTO) {
+        // 1. 参数校验
+        if (changePasswordDTO.getOldPassword() == null || changePasswordDTO.getOldPassword().trim().isEmpty()) {
+            throw new RuntimeException("旧密码不能为空");
+        }
+        if (changePasswordDTO.getNewPassword() == null || changePasswordDTO.getNewPassword().trim().isEmpty()) {
+            throw new RuntimeException("新密码不能为空");
+        }
+        if (changePasswordDTO.getConfirmPassword() == null || changePasswordDTO.getConfirmPassword().trim().isEmpty()) {
+            throw new RuntimeException("确认密码不能为空");
+        }
+
+        // 2. 验证新密码和确认密码是否一致
+        if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
+            throw new RuntimeException("两次输入的新密码不一致");
+        }
+
+        // 3. 验证新密码不能与旧密码相同
+        if (changePasswordDTO.getOldPassword().equals(changePasswordDTO.getNewPassword())) {
+            throw new RuntimeException("新密码不能与旧密码相同");
+        }
+
+        // 4. 查询用户信息
+        User user = userMapper.selectUserForOrder(userId);
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+
+        // 5. 验证旧密码是否正确
+        if (!bCryptPasswordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())) {
+            throw new RuntimeException("旧密码错误");
+        }
+
+        // 6. 加密新密码
+        String encryptedNewPassword = bCryptPasswordEncoder.encode(changePasswordDTO.getNewPassword());
+
+        // 7. 更新密码
+        int result = userMapper.updatePassword(userId, encryptedNewPassword);
+        if (result <= 0) {
+            throw new RuntimeException("修改密码失败");
+        }
+
+        log.info("用户 {} 修改密码成功", userId);
     }
 }

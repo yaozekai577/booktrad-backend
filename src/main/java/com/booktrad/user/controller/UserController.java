@@ -1,6 +1,8 @@
 package com.booktrad.user.controller;
 
+import com.booktrad.common.context.UserContext;
 import com.booktrad.common.result.Result;
+import com.booktrad.user.dto.ChangePasswordDTO;
 import com.booktrad.user.dto.LoginDTO;
 import com.booktrad.user.dto.RegisterDTO;
 import com.booktrad.user.entity.User;
@@ -8,6 +10,7 @@ import com.booktrad.user.service.UserService;
 import com.booktrad.user.vo.LoginVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -96,6 +99,31 @@ public class UserController {
             return Result.success(loginVO);
         } catch (RuntimeException e) {
             // 注册失败，返回错误信息
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 修改密码接口
+     * @param changePasswordDTO 修改密码DTO，包含旧密码、新密码和确认密码
+     * @return 统一返回格式
+     */
+    @PutMapping("/change-password")
+    public Result<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
+        try {
+            // 从上下文中获取当前登录用户ID
+            Long userId = UserContext.getUserId();
+            if (userId == null) {
+                return Result.error(401, "用户未登录");
+            }
+
+            // 调用Service层修改密码
+            userService.changePassword(userId, changePasswordDTO);
+
+            // 返回成功响应
+            return Result.success("密码修改成功");
+        } catch (RuntimeException e) {
+            // 修改失败，返回错误信息
             return Result.error(e.getMessage());
         }
     }

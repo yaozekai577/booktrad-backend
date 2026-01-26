@@ -47,4 +47,12 @@
         FROM user
         WHERE id = #{id}
     </select>
+
+    <!-- 更新用户密码 -->
+    <update id="updatePassword">
+        UPDATE user
+        SET password = #{newPassword},
+            updated_at = NOW()
+        WHERE id = #{userId}
+    </update>
 </mapper>

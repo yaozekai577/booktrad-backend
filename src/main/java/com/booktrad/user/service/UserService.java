@@ -1,6 +1,7 @@
 package com.booktrad.user.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.booktrad.user.dto.ChangePasswordDTO;
 import com.booktrad.user.dto.RegisterDTO;
 import com.booktrad.user.entity.User;
 
@@ -46,4 +47,11 @@ public interface UserService extends IService<User> {
      * @return JWT token
      */
     String generateToken(Long userId, Integer role);
+
+    /**
+     * 修改密码
+     * @param userId 用户ID
+     * @param changePasswordDTO 修改密码DTO
+     */
+    void changePassword(Long userId, ChangePasswordDTO changePasswordDTO);
 }

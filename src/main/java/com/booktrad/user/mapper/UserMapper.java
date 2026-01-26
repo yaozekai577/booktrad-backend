@@ -2,6 +2,7 @@ package com.booktrad.user.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.booktrad.user.entity.User;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -45,4 +46,12 @@ public interface UserMapper extends BaseMapper<User> {
      * @return 用户信息
      */
     User selectUserForOrder(Long id);
+
+    /**
+     * 更新用户密码
+     * @param userId 用户ID
+     * @param newPassword 新密码（已加密）
+     * @return 影响行数
+     */
+    int updatePassword(@Param("userId") Long userId, @Param("newPassword") String newPassword);
 }
