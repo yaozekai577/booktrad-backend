@@ -24,6 +24,7 @@
             b.is_banned AS isBanned,
             b.view_count AS viewCount,
             b.trade_type AS tradeType,
+            b.preferred_location AS preferredLocation,
             b.publish_time AS publishTime,
             b.sold_at AS soldAt,
             b.created_at AS createdAt,
@@ -171,6 +172,7 @@
             defect_desc = #{defectDesc},
             cover_image = #{coverImage},
             trade_type = #{tradeType},
+            preferred_location = #{preferredLocation},
             publish_time = #{publishTime},
             updated_at = NOW()
         WHERE id = #{id}
@@ -194,6 +196,25 @@
         WHERE b.seller_id = #{sellerId}
         AND b.deleted_at IS NULL
         ORDER BY b.created_at DESC
+    </select>
+
+    <!-- 统计卖家在售书籍数量 -->
+    <select id="countSellerOnSaleBooks" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM book
+        WHERE seller_id = #{sellerId}
+        AND status = 1
+        AND is_banned = 0
+        AND deleted_at IS NULL
+    </select>
+
+    <!-- 统计卖家已售书籍数量 -->
+    <select id="countSellerSoldBooks" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM book
+        WHERE seller_id = #{sellerId}
+        AND status = 4
+        AND deleted_at IS NULL
     </select>
 
 </mapper>

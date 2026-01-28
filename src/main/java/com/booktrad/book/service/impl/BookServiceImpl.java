@@ -55,10 +55,19 @@ public class BookServiceImpl implements BookService {
             bookVO.setViewCount(1);
         }
 
-        // 4. 处理封面图片，将String转为List<String>
+        // 4. 查询卖家的在售和已售数量
+        Long sellerId = bookVO.getSellerId();
+        if (sellerId != null) {
+            Integer onSaleCount = bookMapper.countSellerOnSaleBooks(sellerId);
+            Integer soldCount = bookMapper.countSellerSoldBooks(sellerId);
+            bookVO.setSellerOnSaleCount(onSaleCount != null ? onSaleCount : 0);
+            bookVO.setSellerSoldCount(soldCount != null ? soldCount : 0);
+        }
+
+        // 5. 处理封面图片，将String转为List<String>
         this.handleCoverImage(bookVO);
 
-        // 5. 设置描述信息
+        // 6. 设置描述信息
         this.setDescriptions(bookVO);
 
         return bookVO;

@@ -122,6 +122,11 @@ public class BookVO {
     private String tradeType;
 
     /**
+     * 卖家期望交易地点
+     */
+    private String preferredLocation;
+
+    /**
      * 瑕疵说明
      */
     private String defectDesc;
@@ -160,4 +165,14 @@ public class BookVO {
      * 更新时间
      */
     private LocalDateTime updatedAt;
+
+    /**
+     * 卖家在售书籍数量
+     */
+    private Integer sellerOnSaleCount;
+
+    /**
+     * 卖家已售书籍数量
+     */
+    private Integer sellerSoldCount;
 }

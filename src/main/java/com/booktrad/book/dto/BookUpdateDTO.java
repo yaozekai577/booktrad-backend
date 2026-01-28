@@ -84,6 +84,11 @@ public class BookUpdateDTO {
     private String tradeType;
 
     /**
+     * 卖家期望交易地点
+     */
+    private String preferredLocation;
+
+    /**
      * 出版时间 yyyy-MM
      */
     private String publishTime;

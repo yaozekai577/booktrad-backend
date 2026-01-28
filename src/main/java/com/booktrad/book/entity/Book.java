@@ -123,6 +123,13 @@ public class Book {
     private String tradeType;
 
     /**
+     * 卖家期望交易地点
+     * 对应数据库字段：preferred_location
+     */
+    @TableField("preferred_location")
+    private String preferredLocation;
+
+    /**
      * 瑕疵说明
      * 对应数据库字段：defect_desc
      */
