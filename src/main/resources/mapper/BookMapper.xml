@@ -46,6 +46,7 @@
             SUBSTRING_INDEX(b.cover_image, ',', 1) AS coverImg,
             b.price,
             b.original_price AS originalPrice,
+            b.preferred_location AS preferredLocation,
             u.username AS sellerName,
             JSON_UNQUOTE(JSON_EXTRACT(u.extra_info, '$.location')) AS sellerLocation
         FROM book b
@@ -188,6 +189,7 @@
             SUBSTRING_INDEX(b.cover_image, ',', 1) AS coverImg,
             b.price,
             b.original_price AS originalPrice,
+            b.preferred_location AS preferredLocation,
             b.status,
             b.is_banned AS isBanned,
             b.view_count AS viewCount,

@@ -64,6 +64,11 @@ public class BookPageVO {
     private String sellerLocation;
 
     /**
+     * 期望交易地点
+     */
+    private String preferredLocation;
+
+    /**
      * 书籍状态：1-在售 2-已下架 3-交易中 4-已售出
      */
     private Integer status;
