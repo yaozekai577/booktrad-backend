@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.booktrad.order.mapper.ReviewMapper">
+
+    <!-- 评价VO结果映射 -->
+    <resultMap id="ReviewVOMap" type="com.booktrad.order.vo.ReviewVO">
+        <id property="id" column="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="reviewerId" column="reviewer_id"/>
+        <result property="reviewerUsername" column="reviewer_username"/>
+        <result property="revieweeId" column="reviewee_id"/>
+        <result property="revieweeUsername" column="reviewee_username"/>
+        <result property="reviewerRole" column="reviewer_role"/>
+        <result property="rating" column="rating"/>
+        <result property="content" column="content"/>
+        <result property="isAnonymous" column="is_anonymous"/>
+        <result property="replyContent" column="reply_content"/>
+        <result property="replyTime" column="reply_time"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <!-- 根据评价ID查询评价详情 -->
+    <select id="selectReviewById" resultMap="ReviewVOMap">
+        SELECT
+            r.id,
+            r.order_id,
+            r.reviewer_id,
+            u1.username AS reviewer_username,
+            r.reviewee_id,
+            u2.username AS reviewee_username,
+            r.reviewer_role,
+            r.rating,
+            r.content,
+            r.is_anonymous,
+            r.reply_content,
+            r.reply_time,
+            r.created_at
+        FROM order_review r
+        LEFT JOIN user u1 ON r.reviewer_id = u1.id
+        LEFT JOIN user u2 ON r.reviewee_id = u2.id
+        WHERE r.id = #{reviewId}
+    </select>
+
+    <!-- 根据订单ID查询评价列表 -->
+    <select id="selectReviewsByOrderId" resultMap="ReviewVOMap">
+        SELECT
+            r.id,
+            r.order_id,
+            r.reviewer_id,
+            u1.username AS reviewer_username,
+            r.reviewee_id,
+            u2.username AS reviewee_username,
+            r.reviewer_role,
+            r.rating,
+            r.content,
+            r.is_anonymous,
+            r.reply_content,
+            r.reply_time,
+            r.created_at
+        FROM order_review r
+        LEFT JOIN user u1 ON r.reviewer_id = u1.id
+        LEFT JOIN user u2 ON r.reviewee_id = u2.id
+        WHERE r.order_id = #{orderId}
+        ORDER BY r.created_at DESC
+    </select>
+
+    <!-- 查询用户收到的评价列表 -->
+    <select id="selectReceivedReviews" resultMap="ReviewVOMap">
+        SELECT
+            r.id,
+            r.order_id,
+            r.reviewer_id,
+            u1.username AS reviewer_username,
+            r.reviewee_id,
+            u2.username AS reviewee_username,
+            r.reviewer_role,
+            r.rating,
+            r.content,
+            r.is_anonymous,
+            r.reply_content,
+            r.reply_time,
+            r.created_at
+        FROM order_review r
+        LEFT JOIN user u1 ON r.reviewer_id = u1.id
+        LEFT JOIN user u2 ON r.reviewee_id = u2.id
+        WHERE r.reviewee_id = #{userId}
+        ORDER BY r.created_at DESC
+    </select>
+
+    <!-- 查询用户发出的评价列表 -->
+    <select id="selectGivenReviews" resultMap="ReviewVOMap">
+        SELECT
+            r.id,
+            r.order_id,
+            r.reviewer_id,
+            u1.username AS reviewer_username,
+            r.reviewee_id,
+            u2.username AS reviewee_username,
+            r.reviewer_role,
+            r.rating,
+            r.content,
+            r.is_anonymous,
+            r.reply_content,
+            r.reply_time,
+            r.created_at
+        FROM order_review r
+        LEFT JOIN user u1 ON r.reviewer_id = u1.id
+        LEFT JOIN user u2 ON r.reviewee_id = u2.id
+        WHERE r.reviewer_id = #{userId}
+        ORDER BY r.created_at DESC
+    </select>
+
+</mapper>
