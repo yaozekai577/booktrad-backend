@@ -43,6 +43,34 @@ public class User {
     private String password;
 
     /**
+     * 作为卖家的评分：0-5分
+     * 对应数据库字段：seller_rating_score
+     */
+    @TableField("seller_rating_score")
+    private Double sellerRatingScore;
+
+    /**
+     * 作为卖家被评价次数
+     * 对应数据库字段：seller_rating_count
+     */
+    @TableField("seller_rating_count")
+    private Integer sellerRatingCount;
+
+    /**
+     * 作为买家的评分：0-5分
+     * 对应数据库字段：buyer_rating_score
+     */
+    @TableField("buyer_rating_score")
+    private Double buyerRatingScore;
+
+    /**
+     * 作为买家被评价次数
+     * 对应数据库字段：buyer_rating_count
+     */
+    @TableField("buyer_rating_count")
+    private Integer buyerRatingCount;
+
+    /**
      * 邮箱
      * 对应数据库字段：email
      */

@@ -159,6 +159,18 @@ public class BookOrder {
     private LocalDateTime sellerConfirmedAt;
 
     /**
+     * 买家是否已评价：0未评价 1已评价
+     */
+    @TableField("buyer_reviewed")
+    private Integer buyerReviewed;
+
+    /**
+     * 卖家是否已评价：0未评价 1已评价
+     */
+    @TableField("seller_reviewed")
+    private Integer sellerReviewed;
+
+    /**
      * 订单完成时间（双方都确认后）
      */
     @TableField("completed_at")
