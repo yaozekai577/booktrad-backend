@@ -196,7 +196,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         if (reviewerRole == 1) {
-            // 买家评价卖家，更新卖家评分
+            // 买家评价卖家，更新卖家评分1
             Integer currentCount = user.getSellerRatingCount() != null ? user.getSellerRatingCount() : 0;
             Double currentScore = user.getSellerRatingScore() != null ? user.getSellerRatingScore() : 5.0;
             
