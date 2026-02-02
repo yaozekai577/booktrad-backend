@@ -94,6 +94,8 @@ public class OrderServiceImpl implements OrderService {
             order.setStatus(1); // 待确认
             order.setBuyerConfirmed(0);
             order.setSellerConfirmed(0);
+            order.setBuyerReviewed(0);
+            order.setSellerReviewed(0);
 
             orderMapper.insert(order);
 

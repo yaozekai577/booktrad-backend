@@ -126,9 +126,19 @@ public class OrderVO {
     private Integer buyerConfirmed;
 
     /**
-     * 卖家是否确认交货：0未确认 1已确认
+     * 卖家确认交货：0未确认 1已确认
      */
     private Integer sellerConfirmed;
+
+    /**
+     * 买家是否已评价：0未评价 1已评价
+     */
+    private Integer buyerReviewed;
+
+    /**
+     * 卖家是否已评价：0未评价 1已评价
+     */
+    private Integer sellerReviewed;
 
     /**
      * 创建时间

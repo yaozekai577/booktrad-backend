@@ -25,6 +25,8 @@
         <result column="status" property="status"/>
         <result column="buyer_confirmed" property="buyerConfirmed"/>
         <result column="seller_confirmed" property="sellerConfirmed"/>
+        <result column="buyer_reviewed" property="buyerReviewed"/>
+        <result column="seller_reviewed" property="sellerReviewed"/>
         <result column="created_at" property="createdAt"/>
         <result column="confirmed_at" property="confirmedAt"/>
         <result column="buyer_confirmed_at" property="buyerConfirmedAt"/>
@@ -57,6 +59,8 @@
             o.status,
             o.buyer_confirmed,
             o.seller_confirmed,
+            o.buyer_reviewed,
+            o.seller_reviewed,
             o.created_at,
             o.confirmed_at,
             o.buyer_confirmed_at,
@@ -93,6 +97,8 @@
             o.status,
             o.buyer_confirmed,
             o.seller_confirmed,
+            o.buyer_reviewed,
+            o.seller_reviewed,
             o.created_at,
             o.confirmed_at,
             o.buyer_confirmed_at,
@@ -130,6 +136,8 @@
             o.status,
             o.buyer_confirmed,
             o.seller_confirmed,
+            o.buyer_reviewed,
+            o.seller_reviewed,
             o.created_at,
             o.confirmed_at,
             o.buyer_confirmed_at,
@@ -167,6 +175,8 @@
             o.status,
             o.buyer_confirmed,
             o.seller_confirmed,
+            o.buyer_reviewed,
+            o.seller_reviewed,
             o.created_at,
             o.confirmed_at,
             o.buyer_confirmed_at,
