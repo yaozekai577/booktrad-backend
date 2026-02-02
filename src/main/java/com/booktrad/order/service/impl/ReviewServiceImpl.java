@@ -113,6 +113,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         // 7. 更新被评价人的评分统计
+        //todo 更新不到user里面去（bug,mybatisplus）
         updateUserRating(revieweeId, reviewerRole, createDTO.getRating());
 
         // 8. 查询并返回评价详情
