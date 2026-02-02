@@ -54,4 +54,26 @@ public interface UserMapper extends BaseMapper<User> {
      * @return 影响行数
      */
     int updatePassword(@Param("userId") Long userId, @Param("newPassword") String newPassword);
+
+    /**
+     * 更新用户作为卖家的评分统计
+     * @param userId 用户ID
+     * @param newScore 新评分
+     * @param newCount 新评价次数
+     * @return 影响行数
+     */
+    int updateSellerRating(@Param("userId") Long userId, 
+                          @Param("newScore") Double newScore, 
+                          @Param("newCount") Integer newCount);
+
+    /**
+     * 更新用户作为买家的评分统计
+     * @param userId 用户ID
+     * @param newScore 新评分
+     * @param newCount 新评价次数
+     * @return 影响行数
+     */
+    int updateBuyerRating(@Param("userId") Long userId, 
+                         @Param("newScore") Double newScore, 
+                         @Param("newCount") Integer newCount);
 }

@@ -190,4 +190,18 @@
         ORDER BY o.created_at DESC
     </select>
 
+    <!-- 更新订单的买家评价状态 -->
+    <update id="updateBuyerReviewed">
+        UPDATE book_order
+        SET buyer_reviewed = 1
+        WHERE id = #{orderId}
+    </update>
+
+    <!-- 更新订单的卖家评价状态 -->
+    <update id="updateSellerReviewed">
+        UPDATE book_order
+        SET seller_reviewed = 1
+        WHERE id = #{orderId}
+    </update>
+
 </mapper>

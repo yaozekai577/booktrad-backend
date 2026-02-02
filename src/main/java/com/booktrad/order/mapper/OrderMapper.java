@@ -41,4 +41,18 @@ public interface OrderMapper extends BaseMapper<BookOrder> {
      * 查询卖家的订单列表
      */
     List<OrderVO> selectSellerOrderList(@Param("sellerId") Long sellerId);
+
+    /**
+     * 更新订单的买家评价状态
+     * @param orderId 订单ID
+     * @return 影响行数
+     */
+    int updateBuyerReviewed(@Param("orderId") Long orderId);
+
+    /**
+     * 更新订单的卖家评价状态
+     * @param orderId 订单ID
+     * @return 影响行数
+     */
+    int updateSellerReviewed(@Param("orderId") Long orderId);
 }

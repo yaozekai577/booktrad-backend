@@ -1,7 +1,5 @@
 package com.booktrad.order.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.booktrad.common.context.UserContext;
 import com.booktrad.order.dto.ReviewCreateDTO;
 import com.booktrad.order.dto.ReviewReplyDTO;
@@ -20,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -107,18 +104,13 @@ public class ReviewServiceImpl implements ReviewService {
         reviewMapper.insert(review);
 
         // 6. 更新订单的评价状态
-        LambdaUpdateWrapper<BookOrder> orderUpdateWrapper = new LambdaUpdateWrapper<>();
-        orderUpdateWrapper.eq(BookOrder::getId, createDTO.getOrderId());
-        
         if (reviewerRole == 1) {
             // 买家评价
-            orderUpdateWrapper.set(BookOrder::getBuyerReviewed, 1);
+            orderMapper.updateBuyerReviewed(createDTO.getOrderId());
         } else {
             // 卖家评价
-            orderUpdateWrapper.set(BookOrder::getSellerReviewed, 1);
+            orderMapper.updateSellerReviewed(createDTO.getOrderId());
         }
-        
-        orderMapper.update(null, orderUpdateWrapper);
 
         // 7. 更新被评价人的评分统计
         updateUserRating(revieweeId, reviewerRole, createDTO.getRating());
@@ -149,12 +141,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         // 4. 更新回复内容
-        LambdaUpdateWrapper<OrderReview> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(OrderReview::getId, reviewId)
-                .set(OrderReview::getReplyContent, replyDTO.getReplyContent())
-                .set(OrderReview::getReplyTime, LocalDateTime.now());
-        
-        reviewMapper.update(null, updateWrapper);
+        reviewMapper.updateReplyContent(reviewId, replyDTO.getReplyContent());
 
         // 5. 查询并返回评价详情
         return reviewMapper.selectReviewById(reviewId);
@@ -222,12 +209,8 @@ public class ReviewServiceImpl implements ReviewService {
             BigDecimal bd = new BigDecimal(newScore);
             bd = bd.setScale(2, RoundingMode.HALF_UP);
             
-            LambdaUpdateWrapper<User> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.eq(User::getId, userId)
-                    .set(User::getSellerRatingScore, bd.doubleValue())
-                    .set(User::getSellerRatingCount, newCount);
-            
-            userMapper.update(null, updateWrapper);
+            // 调用手写SQL更新
+            userMapper.updateSellerRating(userId, bd.doubleValue(), newCount);
             
         } else if (reviewerRole == 2) {
             // 卖家评价买家，更新买家评分
@@ -243,12 +226,8 @@ public class ReviewServiceImpl implements ReviewService {
             BigDecimal bd = new BigDecimal(newScore);
             bd = bd.setScale(2, RoundingMode.HALF_UP);
             
-            LambdaUpdateWrapper<User> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.eq(User::getId, userId)
-                    .set(User::getBuyerRatingScore, bd.doubleValue())
-                    .set(User::getBuyerRatingCount, newCount);
-            
-            userMapper.update(null, updateWrapper);
+            // 调用手写SQL更新
+            userMapper.updateBuyerRating(userId, bd.doubleValue(), newCount);
         }
     }
 }

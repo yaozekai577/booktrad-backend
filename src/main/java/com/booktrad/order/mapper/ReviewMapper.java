@@ -49,4 +49,13 @@ public interface ReviewMapper extends BaseMapper<OrderReview> {
      * @return 评价列表
      */
     List<ReviewVO> selectGivenReviews(@Param("userId") Long userId);
+
+    /**
+     * 更新评价回复内容
+     * @param reviewId 评价ID
+     * @param replyContent 回复内容
+     * @return 影响行数
+     */
+    int updateReplyContent(@Param("reviewId") Long reviewId, 
+                          @Param("replyContent") String replyContent);
 }

@@ -55,4 +55,22 @@
             updated_at = NOW()
         WHERE id = #{userId}
     </update>
+
+    <!-- 更新用户作为卖家的评分统计 -->
+    <update id="updateSellerRating">
+        UPDATE user
+        SET seller_rating_score = #{newScore},
+            seller_rating_count = #{newCount},
+            updated_at = NOW()
+        WHERE id = #{userId}
+    </update>
+
+    <!-- 更新用户作为买家的评分统计 -->
+    <update id="updateBuyerRating">
+        UPDATE user
+        SET buyer_rating_score = #{newScore},
+            buyer_rating_count = #{newCount},
+            updated_at = NOW()
+        WHERE id = #{userId}
+    </update>
 </mapper>

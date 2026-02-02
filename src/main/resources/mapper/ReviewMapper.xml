@@ -111,4 +111,12 @@
         ORDER BY r.created_at DESC
     </select>
 
+    <!-- 更新评价回复内容 -->
+    <update id="updateReplyContent">
+        UPDATE order_review
+        SET reply_content = #{replyContent},
+            reply_time = NOW()
+        WHERE id = #{reviewId}
+    </update>
+
 </mapper>
