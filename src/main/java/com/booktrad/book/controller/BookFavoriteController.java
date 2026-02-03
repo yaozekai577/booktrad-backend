@@ -14,4 +14,6 @@ package com.booktrad.book.controller;
  * 注意：本内容为个人毕设
  */
 public class BookFavoriteController {
+    //todo：查看卖家主页：可以看到所有评价，所有在售书籍，可能需要一个新的前端页面
+    //这个类名可以改一下，然后卖家主页和收藏模式写一个控制器里
 }
