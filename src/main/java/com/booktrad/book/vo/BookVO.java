@@ -175,4 +175,9 @@ public class BookVO {
      * 卖家已售书籍数量
      */
     private Integer sellerSoldCount;
+
+    /**
+     * 卖家评分
+     */
+    private BigDecimal sellerRatingScore;
 }

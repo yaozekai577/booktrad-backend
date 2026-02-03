@@ -60,6 +60,16 @@ public class OrderVO {
     private String sellerPhone;
 
     /**
+     * 买家信用评分
+     */
+    private BigDecimal buyerRatingScore;
+
+    /**
+     * 卖家信用评分
+     */
+    private BigDecimal sellerRatingScore;
+
+    /**
      * 书籍ID
      */
     private Long bookId;

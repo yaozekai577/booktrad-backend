@@ -41,8 +41,9 @@ public class OrderController {
      * 卖家确认接单
      */
     @PutMapping("/{orderId}/confirm")
-    public Result<OrderVO> confirmOrder(@PathVariable Long orderId) {
-        OrderVO orderVO = orderService.confirmOrder(orderId);
+    public Result<OrderVO> confirmOrder(@PathVariable Long orderId, @RequestBody(required = false) java.util.Map<String, String> body) {
+        String sellerPhone = body != null ? body.get("sellerPhone") : null;
+        OrderVO orderVO = orderService.confirmOrder(orderId, sellerPhone);
         return Result.success(orderVO);
     }
 

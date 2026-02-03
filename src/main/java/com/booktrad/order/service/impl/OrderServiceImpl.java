@@ -111,7 +111,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public OrderVO confirmOrder(Long orderId) {
+    public OrderVO confirmOrder(Long orderId, String sellerPhone) {
         Long currentUserId = UserContext.getUserId();
 
         BookOrder order = orderMapper.selectById(orderId);
@@ -129,9 +129,12 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("订单状态不正确");
         }
 
-        // 更新订单状态
+        // 更新订单状态和卖家电话
         order.setStatus(2); // 已确认、待交易
         order.setConfirmedAt(LocalDateTime.now());
+        if (sellerPhone != null && !sellerPhone.trim().isEmpty()) {
+            order.setSellerPhone(sellerPhone);
+        }
         orderMapper.updateById(order);
 
         return getOrderDetail(orderId);

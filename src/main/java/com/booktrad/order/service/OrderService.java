@@ -29,9 +29,10 @@ public interface OrderService {
     /**
      * 卖家确认接单
      * @param orderId 订单ID
+     * @param sellerPhone 卖家联系电话
      * @return 订单详情
      */
-    OrderVO confirmOrder(Long orderId);
+    OrderVO confirmOrder(Long orderId, String sellerPhone);
 
     /**
      * 买家确认收货

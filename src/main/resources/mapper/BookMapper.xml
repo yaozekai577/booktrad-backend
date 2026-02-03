@@ -8,6 +8,7 @@
             b.id,
             b.seller_id AS sellerId,
             u.username AS sellerUsername,
+            u.seller_rating_score AS sellerRatingScore,
             b.title,
             b.author,
             b.publisher,
