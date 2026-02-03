@@ -76,4 +76,11 @@ public interface UserMapper extends BaseMapper<User> {
     int updateBuyerRating(@Param("userId") Long userId, 
                          @Param("newScore") Double newScore, 
                          @Param("newCount") Integer newCount);
+
+    /**
+     * 根据用户ID查询用户（用于评价系统）
+     * @param userId 用户ID
+     * @return 用户信息
+     */
+    User selectUserById(@Param("userId") Long userId);
 }

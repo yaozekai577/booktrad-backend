@@ -191,13 +191,14 @@ public class ReviewServiceImpl implements ReviewService {
      * @param rating 评分
      */
     private void updateUserRating(Long userId, Integer reviewerRole, Integer rating) {
-        User user = userMapper.selectById(userId);
+        // 使用手写SQL查询用户
+        User user = userMapper.selectUserById(userId);
         if (user == null) {
             return;
         }
 
         if (reviewerRole == 1) {
-            // 买家评价卖家，更新卖家评分1
+            // 买家评价卖家，更新卖家评分
             Integer currentCount = user.getSellerRatingCount() != null ? user.getSellerRatingCount() : 0;
             Double currentScore = user.getSellerRatingScore() != null ? user.getSellerRatingScore() : 5.0;
             
