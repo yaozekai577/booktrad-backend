@@ -138,7 +138,6 @@
         LEFT JOIN user reviewer ON r.reviewer_id = reviewer.id
         LEFT JOIN user reviewee ON r.reviewee_id = reviewee.id
         WHERE r.reviewee_id = #{sellerId}
-          AND r.deleted_at IS NULL
         ORDER BY r.created_at DESC
     </select>
 </mapper>
