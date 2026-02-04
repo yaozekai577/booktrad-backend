@@ -59,7 +59,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 // 拦截所有请求
                 .addPathPatterns("/**")
                 // 排除登录和注册接口，这两个接口不拦截
-                .excludePathPatterns("/api/auth/login", "/api/auth/register"
+                .excludePathPatterns(
+                    "/api/auth/login", 
+                    "/api/auth/register",
+                    "/api/auth/seller/**" // 允许未登录访问卖家主页
                     //    , "/api/upload/**"
                 );
     }
