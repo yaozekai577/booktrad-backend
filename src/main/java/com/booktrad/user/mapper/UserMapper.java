@@ -97,4 +97,11 @@ public interface UserMapper extends BaseMapper<User> {
      * @return 评价列表
      */
     List<Map<String, Object>> selectSellerReviews(@Param("sellerId") Long sellerId);
+
+    /**
+     * 统计卖家收到的评价数量
+     * @param sellerId 卖家ID
+     * @return 评价数量
+     */
+    Integer countSellerReviews(@Param("sellerId") Long sellerId);
 }

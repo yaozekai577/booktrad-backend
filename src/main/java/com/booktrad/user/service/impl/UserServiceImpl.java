@@ -212,7 +212,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         sellerProfile.setRole(seller.getRole());
         sellerProfile.setStatus(seller.getStatus());
         sellerProfile.setSellerRatingScore(seller.getSellerRatingScore());
-        sellerProfile.setSellerRatingCount(seller.getSellerRatingCount());
+        
+        // 重新统计评价次数，确保数据准确
+        Integer realRatingCount = userMapper.countSellerReviews(sellerId);
+        sellerProfile.setSellerRatingCount(realRatingCount);
+        
         sellerProfile.setCreatedAt(seller.getCreatedAt());
 //        sellerProfile.setExtraInfo(seller.getExtraInfo());
 

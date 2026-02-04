@@ -96,6 +96,14 @@
         WHERE id = #{userId}
     </select>
 
+    <!-- 统计卖家收到的评价数量 -->
+    <select id="countSellerReviews" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM order_review
+        WHERE reviewee_id = #{sellerId}
+        AND reviewer_role = 1 <!-- 1表示买家评价卖家 -->
+    </select>
+
     <!-- 查询卖家在售的书籍列表 -->
     <select id="selectSellerOnSaleBooks" resultType="java.util.Map">
         SELECT
