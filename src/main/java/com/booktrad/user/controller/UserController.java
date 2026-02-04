@@ -8,7 +8,10 @@ import com.booktrad.user.dto.RegisterDTO;
 import com.booktrad.user.entity.User;
 import com.booktrad.user.service.UserService;
 import com.booktrad.user.vo.LoginVO;
+import com.booktrad.user.vo.SellerProfileVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -124,6 +127,25 @@ public class UserController {
             return Result.success("密码修改成功");
         } catch (RuntimeException e) {
             // 修改失败，返回错误信息
+            return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 获取卖家主页信息
+     * @param sellerId 卖家ID
+     * @return 卖家主页信息，包含卖家基本信息、评价列表和在售书籍列表
+     */
+    @GetMapping("/seller/{sellerId}")
+    public Result<SellerProfileVO> getSellerProfile(@PathVariable Long sellerId) {
+        try {
+            // 调用Service层获取卖家主页信息
+            SellerProfileVO sellerProfile = userService.getSellerProfile(sellerId);
+            
+            // 返回成功响应
+            return Result.success(sellerProfile);
+        } catch (RuntimeException e) {
+            // 查询失败，返回错误信息
             return Result.error(e.getMessage());
         }
     }

@@ -95,4 +95,50 @@
         FROM user
         WHERE id = #{userId}
     </select>
+
+    <!-- 查询卖家在售的书籍列表 -->
+    <select id="selectSellerOnSaleBooks" resultType="java.util.Map">
+        SELECT
+            b.id,
+            b.title,
+            b.author,
+            b.publisher,
+            b.isbn,
+            b.price,
+            b.book_condition,
+            b.cover_image,
+            b.status,
+            b.view_count,
+            b.created_at
+        FROM book b
+        WHERE b.seller_id = #{sellerId}
+          AND b.status = 1
+          AND b.is_banned = 0
+          AND b.deleted_at IS NULL
+        ORDER BY b.created_at DESC
+    </select>
+
+    <!-- 查询卖家收到的评价列表 -->
+    <select id="selectSellerReviews" resultType="java.util.Map">
+        SELECT
+            r.id,
+            r.order_id,
+            r.reviewer_id,
+            reviewer.username AS reviewer_username,
+            r.reviewee_id,
+            reviewee.username AS reviewee_username,
+            r.reviewer_role,
+            r.rating,
+            r.content,
+            r.is_anonymous,
+            r.reply_content,
+            r.reply_time,
+            r.created_at
+        FROM order_review r
+        LEFT JOIN user reviewer ON r.reviewer_id = reviewer.id
+        LEFT JOIN user reviewee ON r.reviewee_id = reviewee.id
+        WHERE r.reviewee_id = #{sellerId}
+          AND r.deleted_at IS NULL
+        ORDER BY r.created_at DESC
+    </select>
 </mapper>

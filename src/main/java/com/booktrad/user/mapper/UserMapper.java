@@ -83,4 +83,18 @@ public interface UserMapper extends BaseMapper<User> {
      * @return 用户信息
      */
     User selectUserById(@Param("userId") Long userId);
+
+    /**
+     * 查询卖家在售的书籍列表
+     * @param sellerId 卖家ID
+     * @return 在售书籍列表
+     */
+    List<Map<String, Object>> selectSellerOnSaleBooks(@Param("sellerId") Long sellerId);
+
+    /**
+     * 查询卖家收到的评价列表
+     * @param sellerId 卖家ID
+     * @return 评价列表
+     */
+    List<Map<String, Object>> selectSellerReviews(@Param("sellerId") Long sellerId);
 }

@@ -1,18 +1,23 @@
 package com.booktrad.user.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.booktrad.book.vo.BookListVO;
 import com.booktrad.common.utils.JwtUtil;
+import com.booktrad.order.vo.ReviewVO;
 import com.booktrad.user.dto.ChangePasswordDTO;
 import com.booktrad.user.dto.RegisterDTO;
 import com.booktrad.user.entity.User;
 import com.booktrad.user.mapper.UserMapper;
 import com.booktrad.user.service.UserService;
+import com.booktrad.user.vo.SellerProfileVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** 
  * 项目名称：booktrad 
@@ -183,5 +188,85 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         log.info("用户 {} 修改密码成功", userId);
+    }
+
+    /**
+     * 获取卖家主页信息
+     * @param sellerId 卖家ID
+     * @return 卖家主页信息，包含卖家基本信息、评价列表和在售书籍列表
+     */
+    @Override
+    public SellerProfileVO getSellerProfile(Long sellerId) {
+        // 1. 查询卖家基本信息
+        User seller = userMapper.selectUserById(sellerId);
+        if (seller == null) {
+            throw new RuntimeException("卖家不存在");
+        }
+
+        // 2. 构建卖家主页VO
+        SellerProfileVO sellerProfile = new SellerProfileVO();
+        sellerProfile.setSellerId(seller.getId());
+        sellerProfile.setUsername(seller.getUsername());
+        sellerProfile.setEmail(seller.getEmail());
+        sellerProfile.setPhone(seller.getPhone());
+        sellerProfile.setRole(seller.getRole());
+        sellerProfile.setStatus(seller.getStatus());
+        sellerProfile.setSellerRatingScore(seller.getSellerRatingScore());
+        sellerProfile.setSellerRatingCount(seller.getSellerRatingCount());
+        sellerProfile.setCreatedAt(seller.getCreatedAt());
+//        sellerProfile.setExtraInfo(seller.getExtraInfo());
+
+        // 3. 查询卖家收到的评价列表
+        List<Map<String, Object>> reviewMaps = userMapper.selectSellerReviews(sellerId);
+        List<ReviewVO> reviews = new ArrayList<>();
+        for (Map<String, Object> map : reviewMaps) {
+            ReviewVO reviewVO = new ReviewVO();
+            reviewVO.setId(((Number) map.get("id")).longValue());
+            reviewVO.setOrderId(((Number) map.get("order_id")).longValue());
+            reviewVO.setReviewerId(((Number) map.get("reviewer_id")).longValue());
+            reviewVO.setReviewerUsername((String) map.get("reviewer_username"));
+            reviewVO.setRevieweeId(((Number) map.get("reviewee_id")).longValue());
+            reviewVO.setRevieweeUsername((String) map.get("reviewee_username"));
+            reviewVO.setReviewerRole(map.get("reviewer_role") != null ? 
+                ((Number) map.get("reviewer_role")).intValue() : null);
+            reviewVO.setRating(((Number) map.get("rating")).intValue());
+            reviewVO.setContent((String) map.get("content"));
+            reviewVO.setIsAnonymous(map.get("is_anonymous") != null ? 
+                ((Number) map.get("is_anonymous")).intValue() : 0);
+            reviewVO.setReplyContent((String) map.get("reply_content"));
+            reviewVO.setReplyTime(map.get("reply_time") != null ? 
+                java.time.LocalDateTime.parse(map.get("reply_time").toString().replace(" ", "T")) : null);
+            reviewVO.setCreatedAt(map.get("created_at") != null ? 
+                java.time.LocalDateTime.parse(map.get("created_at").toString().replace(" ", "T")) : null);
+            reviews.add(reviewVO);
+        }
+        sellerProfile.setReviews(reviews);
+
+        // 4. 查询卖家在售的书籍列表
+        List<Map<String, Object>> bookMaps = userMapper.selectSellerOnSaleBooks(sellerId);
+        List<BookListVO> books = new ArrayList<>();
+        for (Map<String, Object> map : bookMaps) {
+            BookListVO bookVO = new BookListVO();
+            bookVO.setId(((Number) map.get("id")).longValue());
+            bookVO.setTitle((String) map.get("title"));
+            bookVO.setAuthor((String) map.get("author"));
+            bookVO.setIsbn((String) map.get("isbn"));
+            bookVO.setPrice(map.get("price") != null ? 
+                new java.math.BigDecimal(map.get("price").toString()) : null);
+            bookVO.setBookCondition(map.get("book_condition") != null ? 
+                ((Number) map.get("book_condition")).intValue() : null);
+            bookVO.setCoverImageStr((String) map.get("cover_image"));
+            bookVO.setStatus(((Number) map.get("status")).intValue());
+            bookVO.setViewCount(((Number) map.get("view_count")).intValue());
+            bookVO.setCreatedAt(map.get("created_at") != null ? 
+                java.time.LocalDateTime.parse(map.get("created_at").toString().replace(" ", "T")) : null);
+            books.add(bookVO);
+        }
+        sellerProfile.setBooks(books);
+
+        log.info("查询卖家主页成功，卖家ID: {}, 评价数: {}, 在售书籍数: {}", 
+            sellerId, reviews.size(), books.size());
+
+        return sellerProfile;
     }
 }

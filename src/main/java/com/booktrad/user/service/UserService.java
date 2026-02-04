@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.booktrad.user.dto.ChangePasswordDTO;
 import com.booktrad.user.dto.RegisterDTO;
 import com.booktrad.user.entity.User;
+import com.booktrad.user.vo.SellerProfileVO;
 
 /** 
  * 项目名称：booktrad 
@@ -54,4 +55,11 @@ public interface UserService extends IService<User> {
      * @param changePasswordDTO 修改密码DTO
      */
     void changePassword(Long userId, ChangePasswordDTO changePasswordDTO);
+
+    /**
+     * 获取卖家主页信息
+     * @param sellerId 卖家ID
+     * @return 卖家主页信息，包含卖家基本信息、评价列表和在售书籍列表
+     */
+    SellerProfileVO getSellerProfile(Long sellerId);
 }
