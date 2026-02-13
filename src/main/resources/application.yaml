@@ -40,3 +40,16 @@ oss:
   #prefix: booktrad/
   # 访问URL前缀
   #url-prefix: https://your-bucket-name.oss-cn-hangzhou.aliyuncs.com/
+
+# AI功能配置
+ai:
+  # 阿里云通义千问配置
+  dashscope:
+    api-key: ${DASHSCOPE_API_KEY:your-api-key-here}  # 支持环境变量，默认值需要替换
+    model: qwen-turbo  # 使用turbo模型，速度快且便宜
+    timeout: 30  # 超时时间（秒）
+  
+  # Google Books API配置（可选，不需要密钥也能用）
+  google-books:
+    api-url: https://www.googleapis.com/books/v1/volumes
+    api-key: ${GOOGLE_BOOKS_API_KEY:}  # 可选，有密钥可以提高限额

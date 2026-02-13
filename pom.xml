@@ -110,6 +110,21 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
+        
+        <!-- AI功能依赖 -->
+        <!-- OkHttp - 用于调用Google Books API -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.12.0</version>
+        </dependency>
+        
+        <!-- 阿里云通义千问SDK - 用于AI文本生成 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dashscope-sdk-java</artifactId>
+            <version>2.12.0</version>
+        </dependency>
     </dependencies>
 
     <build>
