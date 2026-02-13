@@ -151,6 +151,47 @@ public class QwenServiceImpl implements QwenService {
         }
     }
 
+    @Override
+    public String callAI(String systemPrompt, String userPrompt) {
+        try {
+            log.info("调用通义千问AI");
+            
+            Generation gen = new Generation();
+            Message systemMsg = Message.builder()
+                    .role(Role.SYSTEM.getValue())
+                    .content(systemPrompt)
+                    .build();
+            Message userMsg = Message.builder()
+                    .role(Role.USER.getValue())
+                    .content(userPrompt)
+                    .build();
+
+            GenerationParam param = GenerationParam.builder()
+                    .apiKey(apiKey)
+                    .model(model)
+                    .messages(Arrays.asList(systemMsg, userMsg))
+                    .resultFormat(GenerationParam.ResultFormat.MESSAGE)
+                    .build();
+
+            GenerationResult result = gen.call(param);
+            
+            if (result != null && result.getOutput() != null && 
+                result.getOutput().getChoices() != null && 
+                !result.getOutput().getChoices().isEmpty()) {
+                String response = result.getOutput().getChoices().get(0).getMessage().getContent();
+                log.info("AI调用成功");
+                return response;
+            }
+            
+            log.warn("通义千问返回结果为空");
+            return null;
+            
+        } catch (Exception e) {
+            log.error("调用通义千问API失败: {}", e.getMessage(), e);
+            return null;
+        }
+    }
+
     /**
      * 获取成色文本描述
      */

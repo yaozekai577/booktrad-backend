@@ -29,4 +29,12 @@ public interface QwenService {
      * @return JSON格式的查询条件
      */
     String parseQueryIntent(String query);
+    
+    /**
+     * 调用AI获取通用响应
+     * @param systemPrompt 系统提示词
+     * @param userPrompt 用户提示词
+     * @return AI响应内容
+     */
+    String callAI(String systemPrompt, String userPrompt);
 }
