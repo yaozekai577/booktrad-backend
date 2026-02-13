@@ -46,7 +46,7 @@ ai:
   # 阿里云通义千问配置
   dashscope:
     api-key: __REMOVED_DASHSCOPE_API_KEY__
-    model: qwen-turbo  # 使用turbo模型，速度快且便宜
+    model: qwen-plus  # 使用plus模型，能力更强，理解更准确
     timeout: 30  # 超时时间（秒）
   
   # Google Books API配置（可选，不需要密钥也能用）
