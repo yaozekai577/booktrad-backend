@@ -207,4 +207,68 @@ public class QwenServiceImpl implements QwenService {
             default: return "未知";
         }
     }
+
+    @Override
+    public String chatWithContext(String message, java.util.List<com.booktrad.ai.entity.AiChatMessage> historyMessages) {
+        try {
+            log.info("调用通义千问进行对话，历史消息数: {}", historyMessages.size());
+            
+            Generation gen = new Generation();
+            java.util.List<Message> messages = new java.util.ArrayList<>();
+            
+            // 添加系统提示词
+            Message systemMsg = Message.builder()
+                    .role(Role.SYSTEM.getValue())
+                    .content("你是BookTrad二手书交易平台的AI智能助手。你的职责是：\n" +
+                            "1. 帮助用户了解平台功能和使用方法\n" +
+                            "2. 解答关于书籍交易的问题\n" +
+                            "3. 提供书籍推荐和搜索建议\n" +
+                            "4. 协助处理订单、支付等相关问题\n" +
+                            "请保持友好、专业的态度，用简洁明了的语言回答用户问题。")
+                    .build();
+            messages.add(systemMsg);
+            
+            // 添加历史消息（保持对话上下文）
+            for (com.booktrad.ai.entity.AiChatMessage historyMsg : historyMessages) {
+                String role = "user".equals(historyMsg.getRole()) ? 
+                        Role.USER.getValue() : Role.ASSISTANT.getValue();
+                Message msg = Message.builder()
+                        .role(role)
+                        .content(historyMsg.getContent())
+                        .build();
+                messages.add(msg);
+            }
+            
+            // 添加当前用户消息
+            Message userMsg = Message.builder()
+                    .role(Role.USER.getValue())
+                    .content(message)
+                    .build();
+            messages.add(userMsg);
+
+            GenerationParam param = GenerationParam.builder()
+                    .apiKey(apiKey)
+                    .model(model)
+                    .messages(messages)
+                    .resultFormat(GenerationParam.ResultFormat.MESSAGE)
+                    .build();
+
+            GenerationResult result = gen.call(param);
+            
+            if (result != null && result.getOutput() != null && 
+                result.getOutput().getChoices() != null && 
+                !result.getOutput().getChoices().isEmpty()) {
+                String reply = result.getOutput().getChoices().get(0).getMessage().getContent();
+                log.info("AI对话成功");
+                return reply;
+            }
+            
+            log.warn("通义千问返回结果为空");
+            return "抱歉，我现在无法回答您的问题，请稍后再试。";
+            
+        } catch (Exception e) {
+            log.error("调用通义千问API失败: {}", e.getMessage(), e);
+            return "抱歉，服务暂时不可用，请稍后再试。";
+        }
+    }
 }

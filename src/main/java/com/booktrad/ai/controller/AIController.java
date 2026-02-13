@@ -2,11 +2,16 @@ package com.booktrad.ai.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.booktrad.ai.dto.AIQueryDTO;
+import com.booktrad.ai.dto.AiChatDTO;
 import com.booktrad.ai.dto.BookInfoDTO;
 import com.booktrad.ai.dto.DescriptionGenerateDTO;
 import com.booktrad.ai.service.AIQueryService;
+import com.booktrad.ai.service.AiAssistantService;
 import com.booktrad.ai.service.GoogleBooksService;
 import com.booktrad.ai.service.QwenService;
+import com.booktrad.ai.vo.AiChatMessageVO;
+import com.booktrad.ai.vo.AiChatResponseVO;
+import com.booktrad.ai.vo.AiChatSessionVO;
 import com.booktrad.book.vo.BookPageVO;
 import com.booktrad.common.result.Result;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +42,9 @@ public class AIController {
     
     @Autowired
     private AIQueryService aiQueryService;
+    
+    @Autowired
+    private AiAssistantService aiAssistantService;
 
     /**
      * 根据ISBN获取书籍信息（智能补全）
@@ -174,6 +182,113 @@ public class AIController {
         } catch (Exception e) {
             log.error("AI查询失败: {}", e.getMessage(), e);
             return Result.error("查询失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * AI助手聊天
+     * 
+     * @param dto 聊天请求DTO
+     * @return AI回复
+     */
+    @PostMapping("/assistant/chat")
+    public Result<AiChatResponseVO> assistantChat(@RequestBody AiChatDTO dto) {
+        try {
+            log.info("收到AI助手聊天请求，sessionId: {}, message: {}", dto.getSessionId(), dto.getMessage());
+            
+            if (dto.getMessage() == null || dto.getMessage().trim().isEmpty()) {
+                return Result.error("消息内容不能为空");
+            }
+            
+            AiChatResponseVO response = aiAssistantService.chat(dto.getSessionId(), dto.getMessage());
+            
+            return Result.success(response);
+            
+        } catch (Exception e) {
+            log.error("AI助手聊天失败: {}", e.getMessage(), e);
+            return Result.error("聊天失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取AI助手会话列表
+     * 
+     * @return 会话列表
+     */
+    @GetMapping("/assistant/sessions")
+    public Result<java.util.List<AiChatSessionVO>> getAssistantSessions() {
+        try {
+            log.info("获取AI助手会话列表");
+            
+            java.util.List<AiChatSessionVO> sessions = aiAssistantService.getSessionList();
+            
+            return Result.success(sessions);
+            
+        } catch (Exception e) {
+            log.error("获取会话列表失败: {}", e.getMessage(), e);
+            return Result.error("获取失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取会话的历史消息
+     * 
+     * @param sessionId 会话ID
+     * @return 消息列表
+     */
+    @GetMapping("/assistant/sessions/{sessionId}/messages")
+    public Result<java.util.List<AiChatMessageVO>> getSessionMessages(@PathVariable Long sessionId) {
+        try {
+            log.info("获取会话历史消息，sessionId: {}", sessionId);
+            
+            java.util.List<AiChatMessageVO> messages = aiAssistantService.getSessionMessages(sessionId);
+            
+            return Result.success(messages);
+            
+        } catch (Exception e) {
+            log.error("获取历史消息失败: {}", e.getMessage(), e);
+            return Result.error("获取失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 创建新的AI助手会话
+     * 
+     * @return 新会话
+     */
+    @PostMapping("/assistant/sessions")
+    public Result<AiChatSessionVO> createAssistantSession() {
+        try {
+            log.info("创建新的AI助手会话");
+            
+            AiChatSessionVO session = aiAssistantService.createSession();
+            
+            return Result.success(session);
+            
+        } catch (Exception e) {
+            log.error("创建会话失败: {}", e.getMessage(), e);
+            return Result.error("创建失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 删除AI助手会话
+     * 
+     * @param sessionId 会话ID
+     * @return 成功标识
+     */
+    @DeleteMapping("/assistant/sessions/{sessionId}")
+    public Result<Void> deleteAssistantSession(@PathVariable Long sessionId) {
+        try {
+            log.info("删除AI助手会话，sessionId: {}", sessionId);
+            
+            aiAssistantService.deleteSession(sessionId);
+            
+            return Result.success();
+            
+        } catch (Exception e) {
+            log.error("删除会话失败: {}", e.getMessage(), e);
+            return Result.error("删除失败：" + e.getMessage());
         }
     }
 }

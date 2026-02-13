@@ -37,4 +37,12 @@ public interface QwenService {
      * @return AI响应内容
      */
     String callAI(String systemPrompt, String userPrompt);
+    
+    /**
+     * 带上下文的对话
+     * @param message 用户消息
+     * @param historyMessages 历史消息列表
+     * @return AI回复
+     */
+    String chatWithContext(String message, java.util.List<com.booktrad.ai.entity.AiChatMessage> historyMessages);
 }
