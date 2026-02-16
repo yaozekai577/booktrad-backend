@@ -225,9 +225,20 @@ public class AiAssistantServiceImpl implements AiAssistantService {
     /**
      * 生成包含书籍信息的回复
      */
+    /**
+     * 生成书籍查询回复（热情友好版）
+     */
     private String generateBookQueryResponse(String query, List<BookPageVO> books) {
         StringBuilder response = new StringBuilder();
-        response.append("为您找到以下书籍:\n\n");
+        
+        // 根据查询内容和结果数量生成不同的开场白
+        if (books.size() == 1) {
+            response.append("太好了！为您找到了这本书，希望正是您需要的：\n\n");
+        } else if (books.size() <= 3) {
+            response.append(String.format("很高兴为您找到了 %d 本相关书籍，每一本都值得一看：\n\n", books.size()));
+        } else {
+            response.append(String.format("真棒！为您精选了 %d 本优质书籍，相信总有一本适合您：\n\n", books.size()));
+        }
         
         response.append("<div class=\"book-card-list\">");
         
@@ -251,6 +262,9 @@ public class AiAssistantServiceImpl implements AiAssistantService {
         }
         
         response.append("</div>");
+        
+        // 添加友好的结尾提示
+        response.append("\n\n💡 温馨提示：点击书籍卡片可以查看详细信息哦！如果没有找到心仪的书籍，可以换个关键词试试～");
         
         return response.toString();
     }
