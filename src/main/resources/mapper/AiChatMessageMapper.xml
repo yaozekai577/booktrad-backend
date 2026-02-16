@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.booktrad.ai.mapper.AiChatMessageMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.booktrad.ai.entity.AiChatMessage">
+        <id column="id" property="id"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="role" property="role"/>
+        <result column="content" property="content"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- 插入消息 -->
+    <insert id="insert" parameterType="com.booktrad.ai.entity.AiChatMessage" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ai_chat_message (session_id, role, content, create_time)
+        VALUES (#{sessionId}, #{role}, #{content}, NOW())
+    </insert>
+
+    <!-- 根据会话ID查询消息列表（按创建时间正序） -->
+    <select id="selectListBySessionId" resultMap="BaseResultMap">
+        SELECT id, session_id, role, content, create_time
+        FROM ai_chat_message
+        WHERE session_id = #{sessionId}
+        ORDER BY create_time ASC
+    </select>
+
+    <!-- 查询会话的最近N条消息（按创建时间倒序） -->
+    <select id="selectRecentMessages" resultMap="BaseResultMap">
+        SELECT id, session_id, role, content, create_time
+        FROM ai_chat_message
+        WHERE session_id = #{sessionId}
+        ORDER BY create_time DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

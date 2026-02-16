@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.booktrad.ai.mapper.AiChatSessionMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.booktrad.ai.entity.AiChatSession">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="title" property="title"/>
+        <result column="last_message" property="lastMessage"/>
+        <result column="message_count" property="messageCount"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 插入会话 -->
+    <insert id="insert" parameterType="com.booktrad.ai.entity.AiChatSession" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ai_chat_session (user_id, title, last_message, message_count, create_time, update_time)
+        VALUES (#{userId}, #{title}, #{lastMessage}, #{messageCount}, NOW(), NOW())
+    </insert>
+
+    <!-- 根据ID查询会话 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT id, user_id, title, last_message, message_count, create_time, update_time
+        FROM ai_chat_session
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据用户ID查询会话列表 -->
+    <select id="selectListByUserId" resultMap="BaseResultMap">
+        SELECT id, user_id, title, last_message, message_count, create_time, update_time
+        FROM ai_chat_session
+        WHERE user_id = #{userId}
+        ORDER BY update_time DESC
+    </select>
+
+    <!-- 更新会话 -->
+    <update id="updateById" parameterType="com.booktrad.ai.entity.AiChatSession">
+        UPDATE ai_chat_session
+        SET title = #{title},
+            last_message = #{lastMessage},
+            message_count = #{messageCount},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除会话 -->
+    <delete id="deleteById">
+        DELETE FROM ai_chat_session WHERE id = #{id}
+    </delete>
+
+</mapper>

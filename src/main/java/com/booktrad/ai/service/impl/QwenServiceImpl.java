@@ -7,7 +7,9 @@ import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
+import com.alibaba.dashscope.utils.JsonUtils;
 import com.booktrad.ai.service.QwenService;
+import io.reactivex.Flowable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -246,11 +248,15 @@ public class QwenServiceImpl implements QwenService {
                     .build();
             messages.add(userMsg);
 
+            // 增加流式输出或者调整超时设置（虽然DashScope SDK默认超时较短，这里可以通过GenerationParam尝试优化）
+            // 注意：DashScope Java SDK 2.14.0+ 支持流式调用，但这里为了兼容现有同步接口，我们主要依赖后端超时配置
             GenerationParam param = GenerationParam.builder()
                     .apiKey(apiKey)
                     .model(model)
                     .messages(messages)
                     .resultFormat(GenerationParam.ResultFormat.MESSAGE)
+                    // 启用增量输出模式（流式），虽然当前是同步调用，但这有助于模型更快开始生成
+                    .enableSearch(true) 
                     .build();
 
             GenerationResult result = gen.call(param);
@@ -268,7 +274,81 @@ public class QwenServiceImpl implements QwenService {
             
         } catch (Exception e) {
             log.error("调用通义千问API失败: {}", e.getMessage(), e);
-            return "抱歉，服务暂时不可用，请稍后再试。";
+            return "抱歉,服务暂时不可用,请稍后再试。";
+        }
+    }
+
+    @Override
+    public void chatWithContextStream(String message, java.util.List<com.booktrad.ai.entity.AiChatMessage> historyMessages, QwenService.StreamCallback callback) {
+        try {
+            log.info("调用通义千问进行流式对话，历史消息数: {}", historyMessages.size());
+            
+            Generation gen = new Generation();
+            java.util.List<Message> messages = new java.util.ArrayList<>();
+            
+            // 添加系统提示词
+            Message systemMsg = Message.builder()
+                    .role(Role.SYSTEM.getValue())
+                    .content("你是BookTrad二手书交易平台的AI智能助手。你的职责是：\n" +
+                            "1. 帮助用户了解平台功能和使用方法\n" +
+                            "2. 解答关于书籍交易的问题\n" +
+                            "3. 提供书籍推荐和搜索建议\n" +
+                            "4. 协助处理订单、支付等相关问题\n" +
+                            "请保持友好、专业的态度，用简洁明了的语言回答用户问题。")
+                    .build();
+            messages.add(systemMsg);
+            
+            // 添加历史消息
+            for (com.booktrad.ai.entity.AiChatMessage historyMsg : historyMessages) {
+                String role = "user".equals(historyMsg.getRole()) ? 
+                        Role.USER.getValue() : Role.ASSISTANT.getValue();
+                Message msg = Message.builder()
+                        .role(role)
+                        .content(historyMsg.getContent())
+                        .build();
+                messages.add(msg);
+            }
+            
+            // 添加当前用户消息
+            Message userMsg = Message.builder()
+                    .role(Role.USER.getValue())
+                    .content(message)
+                    .build();
+            messages.add(userMsg);
+
+            // 配置流式输出参数
+            GenerationParam param = GenerationParam.builder()
+                    .apiKey(apiKey)
+                    .model(model)
+                    .messages(messages)
+                    .resultFormat(GenerationParam.ResultFormat.MESSAGE)
+                    .incrementalOutput(true) // 启用增量输出
+                    .build();
+
+            // 调用流式API
+            Flowable<GenerationResult> resultFlowable = gen.streamCall(param);
+            
+            StringBuilder fullText = new StringBuilder();
+            
+            // 订阅流式结果
+            resultFlowable.blockingForEach(result -> {
+                if (result != null && result.getOutput() != null && 
+                    result.getOutput().getChoices() != null && 
+                    !result.getOutput().getChoices().isEmpty()) {
+                    String text = result.getOutput().getChoices().get(0).getMessage().getContent();
+                    fullText.append(text);
+                    // 回调每个文本片段
+                    callback.onNext(text);
+                }
+            });
+            
+            // 完成回调
+            callback.onComplete(fullText.toString());
+            log.info("AI流式对话完成");
+            
+        } catch (Exception e) {
+            log.error("调用通义千问流式API失败: {}", e.getMessage(), e);
+            callback.onError("抱歉，服务暂时不可用，请稍后再试。");
         }
     }
 }

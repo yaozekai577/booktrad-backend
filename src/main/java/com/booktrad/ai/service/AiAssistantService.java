@@ -48,4 +48,23 @@ public interface AiAssistantService {
      * @param sessionId 会话ID
      */
     void deleteSession(Long sessionId);
+    
+    /**
+     * 流式发送消息给AI助手
+     * 
+     * @param sessionId 会话ID，首次聊天可为null
+     * @param message 用户消息
+     * @param callback 流式回调
+     * @return 会话ID
+     */
+    Long chatStream(Long sessionId, String message, StreamCallback callback);
+    
+    /**
+     * 流式输出回调接口
+     */
+    interface StreamCallback {
+        void onNext(String text);
+        void onComplete(Long sessionId, String fullText);
+        void onError(String error);
+    }
 }

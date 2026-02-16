@@ -13,10 +13,15 @@ import com.booktrad.ai.vo.AiChatMessageVO;
 import com.booktrad.ai.vo.AiChatResponseVO;
 import com.booktrad.ai.vo.AiChatSessionVO;
 import com.booktrad.book.vo.BookPageVO;
+import com.booktrad.common.context.UserContext;
 import com.booktrad.common.result.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.io.IOException;
 
 /**
  * 项目名称：booktrad
@@ -290,5 +295,109 @@ public class AIController {
             log.error("删除会话失败: {}", e.getMessage(), e);
             return Result.error("删除失败：" + e.getMessage());
         }
+    }
+
+    /**
+     * AI助手流式聊天（SSE）
+     * 
+     * @param dto 聊天请求DTO
+     * @return SSE流
+     */
+    @PostMapping(value = "/assistant/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter assistantChatStream(@RequestBody AiChatDTO dto) {
+        log.info("收到AI助手流式聊天请求，sessionId: {}, message: {}", dto.getSessionId(), dto.getMessage());
+        
+        // 在主线程中获取用户ID,避免在异步线程中无法获取
+        final Long currentUserId = UserContext.getUserId();
+        
+        // 创建SSE发射器，设置超时时间为5分钟
+        SseEmitter emitter = new SseEmitter(300000L);
+        
+        // 参数校验
+        if (dto.getMessage() == null || dto.getMessage().trim().isEmpty()) {
+            try {
+                emitter.send(SseEmitter.event()
+                    .name("error")
+                    .data("{\"error\":\"消息内容不能为空\"}"));
+                emitter.complete();
+            } catch (IOException e) {
+                log.error("发送错误消息失败", e);
+            }
+            return emitter;
+        }
+        
+        // 异步处理流式响应
+        new Thread(() -> {
+            try {
+                // 临时设置用户上下文(在异步线程中)
+                UserContext.setUserId(currentUserId);
+                
+                aiAssistantService.chatStream(dto.getSessionId(), dto.getMessage(), 
+                    new AiAssistantService.StreamCallback() {
+                        @Override
+                        public void onNext(String text) {
+                            try {
+                                // 发送文本片段
+                                emitter.send(SseEmitter.event()
+                                    .name("message")
+                                    .data(text));
+                            } catch (IOException e) {
+                                log.error("发送流式消息失败", e);
+                                emitter.completeWithError(e);
+                            }
+                        }
+                        
+                        @Override
+                        public void onComplete(Long sessionId, String fullText) {
+                            try {
+                                // 发送完成事件，包含会话ID
+                                emitter.send(SseEmitter.event()
+                                    .name("done")
+                                    .data("{\"sessionId\":" + sessionId + ",\"fullText\":\"" + 
+                                          fullText.replace("\"", "\\\"").replace("\n", "\\n") + "\"}"));
+                                emitter.complete();
+                                log.info("AI助手流式聊天完成");
+                            } catch (IOException e) {
+                                log.error("发送完成消息失败", e);
+                                emitter.completeWithError(e);
+                            } finally {
+                                // 清理用户上下文
+                                UserContext.clear();
+                            }
+                        }
+                        
+                        @Override
+                        public void onError(String error) {
+                            try {
+                                emitter.send(SseEmitter.event()
+                                    .name("error")
+                                    .data("{\"error\":\"" + error + "\"}"));
+                                emitter.complete();
+                            } catch (IOException e) {
+                                log.error("发送错误消息失败", e);
+                                emitter.completeWithError(e);
+                            } finally {
+                                // 清理用户上下文
+                                UserContext.clear();
+                            }
+                        }
+                    });
+            } catch (Exception e) {
+                log.error("AI助手流式聊天异常", e);
+                try {
+                    emitter.send(SseEmitter.event()
+                        .name("error")
+                        .data("{\"error\":\"" + e.getMessage() + "\"}"));
+                } catch (IOException ex) {
+                    log.error("发送异常消息失败", ex);
+                }
+                emitter.completeWithError(e);
+            } finally {
+                // 确保清理用户上下文
+                UserContext.clear();
+            }
+        }).start();
+        
+        return emitter;
     }
 }

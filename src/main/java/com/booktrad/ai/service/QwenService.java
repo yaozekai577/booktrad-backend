@@ -45,4 +45,35 @@ public interface QwenService {
      * @return AI回复
      */
     String chatWithContext(String message, java.util.List<com.booktrad.ai.entity.AiChatMessage> historyMessages);
+    
+    /**
+     * 流式对话（带上下文）
+     * @param message 用户消息
+     * @param historyMessages 历史消息列表
+     * @param callback 流式回调接口
+     */
+    void chatWithContextStream(String message, java.util.List<com.booktrad.ai.entity.AiChatMessage> historyMessages, StreamCallback callback);
+    
+    /**
+     * 流式输出回调接口
+     */
+    interface StreamCallback {
+        /**
+         * 接收流式输出的文本片段
+         * @param text 文本片段
+         */
+        void onNext(String text);
+        
+        /**
+         * 流式输出完成
+         * @param fullText 完整文本
+         */
+        void onComplete(String fullText);
+        
+        /**
+         * 流式输出出错
+         * @param error 错误信息
+         */
+        void onError(String error);
+    }
 }
