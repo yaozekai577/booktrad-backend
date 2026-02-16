@@ -1,14 +1,17 @@
 package com.booktrad.ai.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.booktrad.ai.entity.AiChatMessage;
 import com.booktrad.ai.entity.AiChatSession;
 import com.booktrad.ai.mapper.AiChatMessageMapper;
 import com.booktrad.ai.mapper.AiChatSessionMapper;
+import com.booktrad.ai.service.AIQueryService;
 import com.booktrad.ai.service.AiAssistantService;
 import com.booktrad.ai.service.QwenService;
 import com.booktrad.ai.vo.AiChatMessageVO;
 import com.booktrad.ai.vo.AiChatResponseVO;
 import com.booktrad.ai.vo.AiChatSessionVO;
+import com.booktrad.book.vo.BookPageVO;
 import com.booktrad.common.context.UserContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -17,8 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,6 +38,9 @@ public class AiAssistantServiceImpl implements AiAssistantService {
     
     @Autowired
     private QwenService qwenService;
+    
+    @Autowired
+    private AIQueryService aiQueryService;
 
     @Override
     @Transactional
@@ -67,20 +71,44 @@ public class AiAssistantServiceImpl implements AiAssistantService {
         userMessage.setContent(message);
         messageMapper.insert(userMessage);
         
-        // 3. 获取历史消息（最近10条）
-        List<AiChatMessage> historyMessages = getRecentMessages(sessionId, 10);
+        // 3. 检查是否是书籍查询请求
+        String aiReply;
+        List<BookPageVO> bookResults = null;
         
-        // 4. 调用通义千问获取回复
-        String aiReply = qwenService.chatWithContext(message, historyMessages);
+        if (isBookQueryIntent(message)) {
+            // 这是书籍查询请求,调用AI查询服务
+            log.info("检测到书籍查询意图: {}", message);
+            try {
+                IPage<BookPageVO> bookPage = aiQueryService.queryBooksByNaturalLanguage(message, 1, 5);
+                if (bookPage != null && bookPage.getRecords() != null && !bookPage.getRecords().isEmpty()) {
+                    bookResults = bookPage.getRecords();
+                    // 生成包含书籍信息的回复
+                    aiReply = generateBookQueryResponse(message, bookResults);
+                } else {
+                    aiReply = "抱歉,没有找到符合您要求的书籍。您可以尝试:\n" +
+                             "1. 使用更具体的关键词\n" +
+                             "2. 调整价格范围\n" +
+                             "3. 浏览其他分类";
+                }
+            } catch (Exception e) {
+                log.error("书籍查询失败: {}", e.getMessage(), e);
+                aiReply = "抱歉,查询书籍时出现了问题,请稍后再试。";
+            }
+        } else {
+            // 普通对话,获取历史消息
+            List<AiChatMessage> historyMessages = getRecentMessages(sessionId, 10);
+            // 调用通义千问获取回复
+            aiReply = qwenService.chatWithContext(message, historyMessages);
+        }
         
-        // 5. 保存AI回复
+        // 4. 保存AI回复
         AiChatMessage assistantMessage = new AiChatMessage();
         assistantMessage.setSessionId(sessionId);
         assistantMessage.setRole("assistant");
         assistantMessage.setContent(aiReply);
         messageMapper.insert(assistantMessage);
         
-        // 6. 更新会话信息
+        // 5. 更新会话信息
         AiChatSession session = sessionMapper.selectById(sessionId);
         session.setLastMessage(message.length() > 100 ? message.substring(0, 100) + "..." : message);
         session.setMessageCount(session.getMessageCount() + 2);
@@ -93,14 +121,152 @@ public class AiAssistantServiceImpl implements AiAssistantService {
         
         sessionMapper.updateById(session);
         
-        // 7. 构造返回结果
+        // 6. 构造返回结果
         AiChatResponseVO response = new AiChatResponseVO();
         response.setSessionId(sessionId);
         response.setReply(aiReply);
         response.setUserMessage(convertToVO(userMessage));
         response.setAssistantMessage(convertToVO(assistantMessage));
+        response.setBookResults(bookResults); // 添加书籍查询结果
         
         return response;
+    }
+    
+    /**
+     * 判断用户消息是否是书籍查询意图
+     */
+    /**
+     * 判断是否是书籍查询意图
+     * 使用AI来智能判断用户意图
+     */
+    private boolean isBookQueryIntent(String message) {
+        if (message == null || message.trim().isEmpty()) {
+            return false;
+        }
+        
+        String lowerMessage = message.toLowerCase();
+        
+        // 1. 明确的书籍查询关键词（高优先级）
+        String[] explicitBookKeywords = {
+            "找书", "推荐书", "买书", "卖书", "书籍推荐",
+            "有什么书", "哪些书", "什么书", "书单",
+            "想买", "想要", "需要", "寻找", "搜索",
+            "有没有", "找一本", "哪里有"
+        };
+        
+        for (String keyword : explicitBookKeywords) {
+            if (lowerMessage.contains(keyword)) {
+                return true;
+            }
+        }
+        
+        // 2. 排除明确的知识问答关键词（高优先级）
+        String[] knowledgeKeywords = {
+            "是什么", "什么是", "怎么", "如何", "为什么",
+            "介绍", "解释", "讲解", "原理", "概念",
+            "学习", "教程", "入门", "基础", "知识"
+        };
+        
+        for (String keyword : knowledgeKeywords) {
+            if (lowerMessage.contains(keyword)) {
+                return false; // 明确是知识问答，不是书籍查询
+            }
+        }
+        
+        // 3. 包含价格、成色等交易相关词汇（中优先级）
+        String[] tradeKeywords = {
+            "便宜", "价格", "多少钱", "成色", "新旧",
+            "九成新", "八成新", "全新", "二手"
+        };
+        
+        for (String keyword : tradeKeywords) {
+            if (lowerMessage.contains(keyword)) {
+                return true;
+            }
+        }
+        
+        // 4. 单独的技术词汇（如"Java"、"Python"）不触发书籍查询
+        // 只有当技术词汇与"书"相关词汇组合时才触发
+        String[] techKeywords = {
+            "java", "python", "c++", "算法", "数据结构",
+            "计算机", "编程", "开发"
+        };
+        
+        String[] bookRelatedWords = {
+            "书", "书籍", "教材", "教程书", "参考书"
+        };
+        
+        boolean hasTechKeyword = false;
+        boolean hasBookWord = false;
+        
+        for (String tech : techKeywords) {
+            if (lowerMessage.contains(tech)) {
+                hasTechKeyword = true;
+                break;
+            }
+        }
+        
+        for (String book : bookRelatedWords) {
+            if (lowerMessage.contains(book)) {
+                hasBookWord = true;
+                break;
+            }
+        }
+        
+        // 技术词汇 + 书籍词汇 = 书籍查询
+        if (hasTechKeyword && hasBookWord) {
+            return true;
+        }
+        
+        // 5. 默认不是书籍查询（避免误判）
+        return false;
+    }
+    
+    /**
+     * 生成包含书籍信息的回复
+     */
+    private String generateBookQueryResponse(String query, List<BookPageVO> books) {
+        StringBuilder response = new StringBuilder();
+        response.append("为您找到以下书籍:\n\n");
+        
+        response.append("<div class=\"book-card-list\">");
+        
+        for (BookPageVO book : books) {
+            response.append(String.format(
+                "<div class=\"book-card-item\" onclick=\"window.navigateToBook(%d)\">" +
+                "  <img src=\"%s\" class=\"book-cover\" alt=\"%s\" />" +
+                "  <div class=\"book-info\">" +
+                "    <div class=\"book-title\">%s</div>" +
+                "    <div class=\"book-author\">%s</div>" +
+                "    <div class=\"book-price\">¥%.2f</div>" +
+                "  </div>" +
+                "</div>",
+                book.getBookId(),
+                book.getCoverImg() != null ? book.getCoverImg() : "/default-book-cover.png",
+                book.getTitle(),
+                book.getTitle(),
+                book.getAuthor(),
+                book.getPrice()
+            ));
+        }
+        
+        response.append("</div>");
+        
+        return response.toString();
+    }
+    
+    /**
+     * 获取成色文本
+     */
+    private String getConditionText(Integer condition) {
+        if (condition == null) return "未知";
+        switch (condition) {
+            case 1: return "全新";
+            case 2: return "九成新";
+            case 3: return "八成新";
+            case 4: return "明显使用痕迹";
+            default: return "未知";
+        }
     }
 
     @Override
@@ -226,56 +392,100 @@ public class AiAssistantServiceImpl implements AiAssistantService {
             userMessage.setContent(message);
             messageMapper.insert(userMessage);
             
-            // 3. 获取历史消息（最近10条）
-            List<AiChatMessage> historyMessages = getRecentMessages(sessionId, 10);
-            
-            // 4. 调用通义千问流式获取回复
             final Long finalSessionId = sessionId;
-            final Long finalUserId = userId; // 保存userId供异步线程使用
             
-            qwenService.chatWithContextStream(message, historyMessages, new QwenService.StreamCallback() {
-                @Override
-                public void onNext(String text) {
-                    // 转发流式文本片段
-                    callback.onNext(text);
-                }
-                
-                @Override
-                public void onComplete(String fullText) {
-                    try {
-                        // 5. 保存AI回复
-                        AiChatMessage assistantMessage = new AiChatMessage();
-                        assistantMessage.setSessionId(finalSessionId);
-                        assistantMessage.setRole("assistant");
-                        assistantMessage.setContent(fullText);
-                        messageMapper.insert(assistantMessage);
+            // 3. 检查是否是书籍查询请求
+            if (isBookQueryIntent(message)) {
+                // 这是书籍查询请求,调用AI查询服务
+                log.info("检测到书籍查询意图(流式): {}", message);
+                try {
+                    IPage<BookPageVO> bookPage = aiQueryService.queryBooksByNaturalLanguage(message, 1, 5);
+                    String aiReply;
+                    
+                    if (bookPage != null && bookPage.getRecords() != null && !bookPage.getRecords().isEmpty()) {
+                        List<BookPageVO> bookResults = bookPage.getRecords();
+                        // 生成包含书籍信息的回复
+                        aiReply = generateBookQueryResponse(message, bookResults);
                         
-                        // 6. 更新会话信息
-                        AiChatSession session = sessionMapper.selectById(finalSessionId);
-                        session.setLastMessage(message.length() > 100 ? message.substring(0, 100) + "..." : message);
-                        session.setMessageCount(session.getMessageCount() + 2);
+                        // 流式输出回复文本
+                        // 这里一次性输出，避免HTML标签被拆分导致渲染异常
+                        callback.onNext(aiReply);
+                    } else {
+                        aiReply = "抱歉,没有找到符合您要求的书籍。您可以尝试:\n" +
+                                 "1. 使用更具体的关键词\n" +
+                                 "2. 调整价格范围\n" +
+                                 "3. 浏览其他分类";
                         
-                        // 自动生成会话标题（第一次对话时）
-                        if (session.getMessageCount() == 2 && "AI助手对话".equals(session.getTitle())) {
-                            String title = message.length() > 20 ? message.substring(0, 20) + "..." : message;
-                            session.setTitle(title);
+                        // 流式输出回复文本
+                        String[] words = aiReply.split("");
+                        for (String word : words) {
+                            callback.onNext(word);
+                            try {
+                                Thread.sleep(20);
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                            }
                         }
-                        
-                        sessionMapper.updateById(session);
-                        
-                        // 完成回调
-                        callback.onComplete(finalSessionId, fullText);
-                    } catch (Exception e) {
-                        log.error("保存AI回复失败: {}", e.getMessage(), e);
-                        callback.onError("保存消息失败");
                     }
+                    
+                    // 保存AI回复
+                    AiChatMessage assistantMessage = new AiChatMessage();
+                    assistantMessage.setSessionId(finalSessionId);
+                    assistantMessage.setRole("assistant");
+                    assistantMessage.setContent(aiReply);
+                    messageMapper.insert(assistantMessage);
+                    
+                    // 更新会话信息
+                    updateSessionInfo(finalSessionId, message);
+                    
+                    // 完成回调
+                    callback.onComplete(finalSessionId, aiReply);
+                    
+                } catch (Exception e) {
+                    log.error("书籍查询失败: {}", e.getMessage(), e);
+                    String errorReply = "抱歉,查询书籍时出现了问题,请稍后再试。";
+                    callback.onNext(errorReply);
+                    callback.onComplete(finalSessionId, errorReply);
                 }
+            } else {
+                // 4. 普通对话,获取历史消息（最近10条）
+                List<AiChatMessage> historyMessages = getRecentMessages(sessionId, 10);
                 
-                @Override
-                public void onError(String error) {
-                    callback.onError(error);
-                }
-            });
+                // 5. 调用通义千问流式获取回复
+                qwenService.chatWithContextStream(message, historyMessages, new QwenService.StreamCallback() {
+                    @Override
+                    public void onNext(String text) {
+                        // 转发流式文本片段
+                        callback.onNext(text);
+                    }
+                    
+                    @Override
+                    public void onComplete(String fullText) {
+                        try {
+                            // 保存AI回复
+                            AiChatMessage assistantMessage = new AiChatMessage();
+                            assistantMessage.setSessionId(finalSessionId);
+                            assistantMessage.setRole("assistant");
+                            assistantMessage.setContent(fullText);
+                            messageMapper.insert(assistantMessage);
+                            
+                            // 更新会话信息
+                            updateSessionInfo(finalSessionId, message);
+                            
+                            // 完成回调
+                            callback.onComplete(finalSessionId, fullText);
+                        } catch (Exception e) {
+                            log.error("保存AI回复失败: {}", e.getMessage(), e);
+                            callback.onError("保存消息失败");
+                        }
+                    }
+                    
+                    @Override
+                    public void onError(String error) {
+                        callback.onError(error);
+                    }
+                });
+            }
             
             return sessionId;
             
@@ -284,5 +494,22 @@ public class AiAssistantServiceImpl implements AiAssistantService {
             callback.onError("聊天失败：" + e.getMessage());
             return null;
         }
+    }
+    
+    /**
+     * 更新会话信息
+     */
+    private void updateSessionInfo(Long sessionId, String message) {
+        AiChatSession session = sessionMapper.selectById(sessionId);
+        session.setLastMessage(message.length() > 100 ? message.substring(0, 100) + "..." : message);
+        session.setMessageCount(session.getMessageCount() + 2);
+        
+        // 自动生成会话标题（第一次对话时）
+        if (session.getMessageCount() == 2 && "AI助手对话".equals(session.getTitle())) {
+            String title = message.length() > 20 ? message.substring(0, 20) + "..." : message;
+            session.setTitle(title);
+        }
+        
+        sessionMapper.updateById(session);
     }
 }
