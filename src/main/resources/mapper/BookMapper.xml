@@ -220,4 +220,29 @@
         AND deleted_at IS NULL
     </select>
 
+    <!-- 管理员分页查询所有书籍 -->
+    <select id="selectAdminBookPage" resultType="com.booktrad.book.vo.BookPageVO">
+        SELECT
+            b.id AS bookId,
+            b.seller_id AS sellerId,
+            b.title,
+            b.author,
+            SUBSTRING_INDEX(b.cover_image, ',', 1) AS coverImg,
+            b.price,
+            b.original_price AS originalPrice,
+            b.preferred_location AS preferredLocation,
+            b.status,
+            b.is_banned AS isBanned,
+            b.view_count AS viewCount,
+            b.created_at AS createdAt,
+            u.username AS sellerName
+        FROM book b
+        LEFT JOIN user u ON b.seller_id = u.id
+        WHERE b.deleted_at IS NULL
+        <if test="title != null and title != ''">
+            AND b.title LIKE CONCAT('%', #{title}, '%')
+        </if>
+        ORDER BY b.created_at DESC
+    </select>
+
 </mapper>

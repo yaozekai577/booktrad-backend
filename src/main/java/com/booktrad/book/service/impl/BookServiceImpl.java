@@ -239,44 +239,25 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public IPage<BookPageVO> getAdminBookList(String title, Integer pageNum, Integer pageSize) {
-        Page<Book> page = new Page<>(pageNum, pageSize);
-        com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<Book> queryWrapper = 
-            new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
+        Page<BookPageVO> page = new Page<>(pageNum, pageSize);
+        BookQueryDTO queryDTO = new BookQueryDTO();
+        queryDTO.setKeyword(title); // 复用 keyword 字段进行模糊查询
+        // 管理员查询不需要过滤状态，所以这里不需要设置 status 等条件
         
-        // 模糊查询
-        if (title != null && !title.trim().isEmpty()) {
-            queryWrapper.like("title", title);
-        }
+        // 调用 Mapper 的 selectBookPage 方法，或者是专门为管理员写的查询方法
+        // 由于 selectBookPage 里面有 WHERE b.status = 1 AND b.is_banned = 0 的限制，不能直接复用
+        // 我们需要新增一个 selectAdminBookPage 方法，或者使用 QueryWrapper 查询 entity 然后转换
         
-        // 排序：按创建时间倒序
-        queryWrapper.orderByDesc("created_at");
+        // 使用 QueryWrapper 方案（目前采用的）：
+        // Page<Book> bookPage = new Page<>(pageNum, pageSize);
+        // ...
+        // IPage<Book> resultPage = bookMapper.selectPage(bookPage, queryWrapper);
+        // return resultPage.convert(...)
         
-        IPage<Book> bookPage = bookMapper.selectPage(page, queryWrapper);
+        // 但是 Book 实体类没有 sellerName 字段，需要关联查询
+        // 所以最好是在 XML 中新增一个 selectAdminBookPage
         
-        // Convert to VO
-        return bookPage.convert(book -> {
-            BookPageVO vo = new BookPageVO();
-            BeanUtils.copyProperties(book, vo);
-            vo.setBookId(book.getId());
-            // 处理封面图片（取第一张）
-            if (book.getCoverImage() != null && !book.getCoverImage().isEmpty()) {
-                vo.setCoverImg(book.getCoverImage().split(",")[0]);
-            }
-            
-            // 设置描述信息
-            BookVO tempVO = new BookVO();
-            tempVO.setBookCondition(book.getBookCondition());
-            tempVO.setStatus(book.getStatus());
-            tempVO.setIsBanned(book.getIsBanned());
-            setDescriptions(tempVO);
-            
-            // 将描述信息复制到BookPageVO中（如果BookPageVO有对应字段）
-            // 注意：BookPageVO没有conditionDesc等字段，前端是直接显示status数字？
-            // 检查AdminView.vue，发现使用了getStatusText方法处理status
-            // 所以这里不需要额外处理
-            
-            return vo;
-        });
+        return bookMapper.selectAdminBookPage(page, title);
     }
 
     @Override

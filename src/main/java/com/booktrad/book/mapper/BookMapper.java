@@ -96,4 +96,12 @@ public interface BookMapper extends BaseMapper<Book> {
      * @return 已售数量
      */
     Integer countSellerSoldBooks(@Param("sellerId") Long sellerId);
+
+    /**
+     * 管理员分页查询所有书籍（包括关联卖家信息）
+     * @param page 分页对象
+     * @param title 书名（模糊查询）
+     * @return 分页结果
+     */
+    IPage<BookPageVO> selectAdminBookPage(IPage<BookPageVO> page, @Param("title") String title);
 }
