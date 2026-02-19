@@ -80,4 +80,17 @@ public interface BookService {
      * @param bookId 书籍ID
      */
     void adminDeleteBook(Long bookId);
+
+    /**
+     * 管理员封禁书籍
+     * @param bookId 书籍ID
+     * @param reason 封禁原因
+     */
+    void banBook(Long bookId, String reason);
+
+    /**
+     * 管理员解封书籍
+     * @param bookId 书籍ID
+     */
+    void unbanBook(Long bookId);
 }

@@ -179,17 +179,19 @@ public class UserController {
     /**
      * 管理员更新用户状态
      * @param userId 用户ID
-     * @param status 状态
+     * @param status 状态：0-封禁，1-正常
+     * @param reason 封禁原因（仅当封禁时需要）
      * @return 成功信息
      */
     @PutMapping("/admin/users/{userId}/status")
     public Result<String> updateUserStatus(
             @PathVariable Long userId,
-            @org.springframework.web.bind.annotation.RequestParam Integer status) {
+            @org.springframework.web.bind.annotation.RequestParam Integer status,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String reason) {
         try {
             // TODO: 权限校验
 
-            userService.updateUserStatus(userId, status);
+            userService.updateUserStatus(userId, status, reason);
             return Result.success("更新状态成功");
         } catch (Exception e) {
             return Result.error("更新状态失败：" + e.getMessage());

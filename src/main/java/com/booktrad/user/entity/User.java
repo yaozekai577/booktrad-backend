@@ -99,6 +99,13 @@ public class User {
     private Integer status;
 
     /**
+     * 封禁原因
+     * 对应数据库字段：ban_reason
+     */
+    @TableField("ban_reason")
+    private String banReason;
+
+    /**
      * 创建时间
      * 对应数据库字段：created_at
      */

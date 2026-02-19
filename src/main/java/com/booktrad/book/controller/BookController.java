@@ -181,4 +181,37 @@ public class BookController {
             return Result.error("删除书籍失败：" + e.getMessage());
         }
     }
+
+    /**
+     * 管理员封禁书籍
+     * @param id 书籍ID
+     * @param reason 封禁原因
+     * @return 成功信息
+     */
+    @PutMapping("/admin/ban/{id}")
+    public Result<String> banBook(@PathVariable Long id, @RequestParam String reason) {
+        try {
+            // TODO: 权限校验
+            bookService.banBook(id, reason);
+            return Result.success("封禁书籍成功");
+        } catch (Exception e) {
+            return Result.error("封禁书籍失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 管理员解封书籍
+     * @param id 书籍ID
+     * @return 成功信息
+     */
+    @PutMapping("/admin/unban/{id}")
+    public Result<String> unbanBook(@PathVariable Long id) {
+        try {
+            // TODO: 权限校验
+            bookService.unbanBook(id);
+            return Result.success("解封书籍成功");
+        } catch (Exception e) {
+            return Result.error("解封书籍失败：" + e.getMessage());
+        }
+    }
 }

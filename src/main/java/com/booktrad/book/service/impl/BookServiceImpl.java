@@ -268,6 +268,37 @@ public class BookServiceImpl implements BookService {
         bookMapper.deleteById(bookId);
     }
 
+    @Override
+    public void banBook(Long bookId, String reason) {
+        if (bookId == null) {
+            throw new RuntimeException("书籍ID不能为空");
+        }
+        if (reason == null || reason.trim().isEmpty()) {
+            throw new RuntimeException("封禁原因不能为空");
+        }
+
+        Book book = bookMapper.selectBookEntityById(bookId);
+        if (book == null) {
+            throw new RuntimeException("书籍不存在");
+        }
+
+        bookMapper.updateBookBanStatus(bookId, 1, reason);
+    }
+
+    @Override
+    public void unbanBook(Long bookId) {
+        if (bookId == null) {
+            throw new RuntimeException("书籍ID不能为空");
+        }
+
+        Book book = bookMapper.selectBookEntityById(bookId);
+        if (book == null) {
+            throw new RuntimeException("书籍不存在");
+        }
+
+        bookMapper.updateBookBanStatus(bookId, 0, null);
+    }
+
     /**
      * 处理封面图片，将String转为List<String>
      * 假设封面图片以逗号分隔，例如："url1,url2,url3"

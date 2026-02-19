@@ -148,4 +148,60 @@
         WHERE r.reviewee_id = #{sellerId}
         ORDER BY r.created_at DESC
     </select>
+    <!-- 管理员分页查询用户 -->
+    <select id="selectUserPage" resultType="com.booktrad.user.entity.User">
+        SELECT
+            id,
+            username,
+            email,
+            phone,
+            role,
+            status,
+            ban_reason,
+            seller_rating_score,
+            seller_rating_count,
+            buyer_rating_score,
+            buyer_rating_count,
+            created_at,
+            updated_at,
+            extra_info
+        FROM user
+        WHERE deleted_at IS NULL
+        <if test="username != null and username != ''">
+            AND username LIKE CONCAT('%', #{username}, '%')
+        </if>
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 根据ID查询用户实体（手写SQL） -->
+    <select id="selectUserEntityById" resultType="com.booktrad.user.entity.User">
+        SELECT
+            id,
+            username,
+            email,
+            phone,
+            role,
+            status,
+            ban_reason,
+            seller_rating_score,
+            seller_rating_count,
+            buyer_rating_score,
+            buyer_rating_count,
+            created_at,
+            updated_at,
+            extra_info
+        FROM user
+        WHERE id = #{id}
+        AND deleted_at IS NULL
+    </select>
+
+    <!-- 更新用户封禁状态 -->
+    <update id="updateUserBanStatus">
+        UPDATE user
+        SET status = #{status},
+            ban_reason = #{banReason},
+            updated_at = NOW()
+        WHERE id = #{userId}
+    </update>
+
 </mapper>

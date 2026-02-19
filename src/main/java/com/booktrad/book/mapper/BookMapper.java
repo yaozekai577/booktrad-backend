@@ -104,4 +104,19 @@ public interface BookMapper extends BaseMapper<Book> {
      * @return 分页结果
      */
     IPage<BookPageVO> selectAdminBookPage(IPage<BookPageVO> page, @Param("title") String title);
+
+    /**
+     * 根据ID查询书籍实体（手写SQL）
+     * @param id 书籍ID
+     * @return 书籍实体
+     */
+    Book selectBookEntityById(@Param("id") Long id);
+
+    /**
+     * 更新书籍封禁状态
+     * @param bookId 书籍ID
+     * @param isBanned 是否封禁：0-正常 1-封禁
+     * @param banReason 封禁原因
+     */
+    void updateBookBanStatus(@Param("bookId") Long bookId, @Param("isBanned") Integer isBanned, @Param("banReason") String banReason);
 }

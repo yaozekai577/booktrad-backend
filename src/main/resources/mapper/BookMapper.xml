@@ -242,7 +242,50 @@
         <if test="title != null and title != ''">
             AND b.title LIKE CONCAT('%', #{title}, '%')
         </if>
-        ORDER BY b.created_at DESC
+        ORDER BY 
+            CASE WHEN b.status = 1 THEN 0 ELSE 1 END ASC,
+            b.created_at DESC
     </select>
+
+    <!-- 根据ID查询书籍实体（手写SQL） -->
+    <select id="selectBookEntityById" resultType="com.booktrad.book.entity.Book">
+        SELECT
+            id,
+            seller_id,
+            title,
+            author,
+            publisher,
+            isbn,
+            category_id,
+            price,
+            original_price,
+            book_condition,
+            description,
+            cover_image,
+            status,
+            is_banned,
+            ban_reason,
+            view_count,
+            trade_type,
+            defect_desc,
+            publish_time,
+            category_path,
+            sold_at,
+            created_at,
+            updated_at,
+            deleted_at
+        FROM book
+        WHERE id = #{id}
+        AND deleted_at IS NULL
+    </select>
+
+    <!-- 更新书籍封禁状态 -->
+    <update id="updateBookBanStatus">
+        UPDATE book
+        SET is_banned = #{isBanned},
+            ban_reason = #{banReason},
+            updated_at = NOW()
+        WHERE id = #{bookId}
+    </update>
 
 </mapper>

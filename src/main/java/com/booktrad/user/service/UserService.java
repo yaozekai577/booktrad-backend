@@ -76,6 +76,7 @@ public interface UserService extends IService<User> {
      * 管理员更新用户状态
      * @param userId 用户ID
      * @param status 状态：0-封禁，1-正常
+     * @param reason 封禁原因（仅当封禁时需要）
      */
-    void updateUserStatus(Long userId, Integer status);
+    void updateUserStatus(Long userId, Integer status, String reason);
 }

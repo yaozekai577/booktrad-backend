@@ -109,6 +109,12 @@ public class Book {
     private Integer isBanned;
 
     /**
+     * 封禁原因
+     */
+    @TableField("ban_reason")
+    private String banReason;
+
+    /**
      * 浏览次数
      * 对应数据库字段：view_count
      */

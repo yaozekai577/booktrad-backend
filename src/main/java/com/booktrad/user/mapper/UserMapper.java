@@ -104,4 +104,30 @@ public interface UserMapper extends BaseMapper<User> {
      * @return 评价数量
      */
     Integer countSellerReviews(@Param("sellerId") Long sellerId);
+
+    /**
+     * 管理员分页查询用户
+     * @param page 分页对象
+     * @param username 用户名（可选，模糊查询）
+     * @return 用户列表
+     */
+    com.baomidou.mybatisplus.core.metadata.IPage<User> selectUserPage(
+        com.baomidou.mybatisplus.core.metadata.IPage<User> page, 
+        @Param("username") String username
+    );
+
+    /**
+     * 根据ID查询用户实体（手写SQL）
+     * @param id 用户ID
+     * @return 用户实体
+     */
+    User selectUserEntityById(@Param("id") Long id);
+
+    /**
+     * 更新用户封禁状态
+     * @param userId 用户ID
+     * @param status 状态：0-封禁，1-正常
+     * @param banReason 封禁原因
+     */
+    void updateUserBanStatus(@Param("userId") Long userId, @Param("status") Integer status, @Param("banReason") String banReason);
 }
