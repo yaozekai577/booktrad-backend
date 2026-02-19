@@ -65,4 +65,19 @@ public interface BookService {
      * @return 分页结果
      */
     IPage<BookPageVO> getSellerBookPage(Integer page, Integer size);
+
+    /**
+     * 管理员获取书籍列表
+     * @param title 书名（可选，模糊查询）
+     * @param pageNum 页码
+     * @param pageSize 每页大小
+     * @return 书籍分页列表
+     */
+    IPage<BookPageVO> getAdminBookList(String title, Integer pageNum, Integer pageSize);
+
+    /**
+     * 管理员删除书籍（逻辑删除）
+     * @param bookId 书籍ID
+     */
+    void adminDeleteBook(Long bookId);
 }

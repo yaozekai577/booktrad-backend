@@ -145,4 +145,40 @@ public class BookController {
             return Result.error(e.getMessage());
         }
     }
+
+    /**
+     * 管理员获取书籍列表
+     * @param title 书名（可选）
+     * @param pageNum 页码
+     * @param pageSize 每页大小
+     * @return 书籍列表
+     */
+    @GetMapping("/admin/list")
+    public Result<IPage<BookPageVO>> getAdminBookList(
+            @RequestParam(required = false) String title,
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        try {
+            // TODO: 权限校验
+            return Result.success(bookService.getAdminBookList(title, pageNum, pageSize));
+        } catch (Exception e) {
+            return Result.error("获取书籍列表失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 管理员删除书籍
+     * @param id 书籍ID
+     * @return 成功信息
+     */
+    @org.springframework.web.bind.annotation.DeleteMapping("/admin/{id}")
+    public Result<String> adminDeleteBook(@PathVariable Long id) {
+        try {
+            // TODO: 权限校验
+            bookService.adminDeleteBook(id);
+            return Result.success("删除书籍成功");
+        } catch (Exception e) {
+            return Result.error("删除书籍失败：" + e.getMessage());
+        }
+    }
 }

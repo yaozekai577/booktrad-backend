@@ -218,6 +218,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public IPage<BookPageVO> getSellerBookPage(Integer page, Integer size) {
+        // ... (existing code)
         // 1. 获取当前登录用户ID
         Long sellerId = UserContext.getUserId();
         if (sellerId == null) {
@@ -232,9 +233,58 @@ public class BookServiceImpl implements BookService {
         Page<BookPageVO> pageParam = new Page<>(currentPage, pageSize);
 
         // 4. 调用Mapper查询分页数据
-        IPage<BookPageVO> bookPage = bookMapper.selectSellerBookPage(pageParam, sellerId);
+        // IPage<BookPageVO> bookPage = bookMapper.selectSellerBookPage(pageParam, sellerId); // This was in original code
+        return bookMapper.selectSellerBookPage(pageParam, sellerId);
+    }
 
-        return bookPage;
+    @Override
+    public IPage<BookPageVO> getAdminBookList(String title, Integer pageNum, Integer pageSize) {
+        Page<Book> page = new Page<>(pageNum, pageSize);
+        com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<Book> queryWrapper = 
+            new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
+        
+        // 模糊查询
+        if (title != null && !title.trim().isEmpty()) {
+            queryWrapper.like("title", title);
+        }
+        
+        // 排序：按创建时间倒序
+        queryWrapper.orderByDesc("created_at");
+        
+        IPage<Book> bookPage = bookMapper.selectPage(page, queryWrapper);
+        
+        // Convert to VO
+        return bookPage.convert(book -> {
+            BookPageVO vo = new BookPageVO();
+            BeanUtils.copyProperties(book, vo);
+            vo.setBookId(book.getId());
+            // 处理封面图片（取第一张）
+            if (book.getCoverImage() != null && !book.getCoverImage().isEmpty()) {
+                vo.setCoverImg(book.getCoverImage().split(",")[0]);
+            }
+            
+            // 设置描述信息
+            BookVO tempVO = new BookVO();
+            tempVO.setBookCondition(book.getBookCondition());
+            tempVO.setStatus(book.getStatus());
+            tempVO.setIsBanned(book.getIsBanned());
+            setDescriptions(tempVO);
+            
+            // 将描述信息复制到BookPageVO中（如果BookPageVO有对应字段）
+            // 注意：BookPageVO没有conditionDesc等字段，前端是直接显示status数字？
+            // 检查AdminView.vue，发现使用了getStatusText方法处理status
+            // 所以这里不需要额外处理
+            
+            return vo;
+        });
+    }
+
+    @Override
+    public void adminDeleteBook(Long bookId) {
+        if (bookId == null) {
+            throw new RuntimeException("书籍ID不能为空");
+        }
+        bookMapper.deleteById(bookId);
     }
 
     /**

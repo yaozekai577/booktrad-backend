@@ -273,4 +273,43 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         return sellerProfile;
     }
+
+    @Override
+    public com.baomidou.mybatisplus.core.metadata.IPage<User> getUserList(String username, Integer pageNum, Integer pageSize) {
+        log.info("管理员查询用户列表，username: {}, page: {}, size: {}", username, pageNum, pageSize);
+        
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<User> page = 
+            new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(pageNum, pageSize);
+        
+        com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<User> queryWrapper = 
+            new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
+        
+        // 模糊查询
+        if (username != null && !username.trim().isEmpty()) {
+            queryWrapper.like("username", username);
+        }
+        
+        // 排序：按创建时间倒序
+        queryWrapper.orderByDesc("created_at");
+        
+        return userMapper.selectPage(page, queryWrapper);
+    }
+
+    @Override
+    public void updateUserStatus(Long userId, Integer status) {
+        log.info("管理员更新用户状态，userId: {}, status: {}", userId, status);
+        
+        if (status == null || (status != 0 && status != 1)) {
+            throw new RuntimeException("状态参数错误");
+        }
+        
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+        
+        // 更新状态
+        user.setStatus(status);
+        userMapper.updateById(user);
+    }
 }

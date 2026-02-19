@@ -62,4 +62,20 @@ public interface UserService extends IService<User> {
      * @return 卖家主页信息，包含卖家基本信息、评价列表和在售书籍列表
      */
     SellerProfileVO getSellerProfile(Long sellerId);
+
+    /**
+     * 管理员获取用户列表
+     * @param username 用户名（可选，模糊查询）
+     * @param pageNum 页码
+     * @param pageSize 每页大小
+     * @return 用户分页列表
+     */
+    com.baomidou.mybatisplus.core.metadata.IPage<User> getUserList(String username, Integer pageNum, Integer pageSize);
+
+    /**
+     * 管理员更新用户状态
+     * @param userId 用户ID
+     * @param status 状态：0-封禁，1-正常
+     */
+    void updateUserStatus(Long userId, Integer status);
 }

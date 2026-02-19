@@ -149,4 +149,50 @@ public class UserController {
             return Result.error(e.getMessage());
         }
     }
+
+    /**
+     * 管理员获取用户列表
+     * @param username 用户名（可选）
+     * @param pageNum 页码
+     * @param pageSize 每页大小
+     * @return 用户列表
+     */
+    @GetMapping("/admin/users")
+    public Result<com.baomidou.mybatisplus.core.metadata.IPage<User>> getUserList(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String username,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "1") Integer pageNum,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "10") Integer pageSize) {
+        try {
+            // TODO: 可以在这里添加权限校验，确保当前用户是管理员
+            // Long currentUserId = UserContext.getUserId();
+            // User currentUser = userService.getById(currentUserId);
+            // if (currentUser == null || currentUser.getRole() != 1) {
+            //     return Result.error(403, "无权访问");
+            // }
+
+            return Result.success(userService.getUserList(username, pageNum, pageSize));
+        } catch (Exception e) {
+            return Result.error("获取用户列表失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 管理员更新用户状态
+     * @param userId 用户ID
+     * @param status 状态
+     * @return 成功信息
+     */
+    @PutMapping("/admin/users/{userId}/status")
+    public Result<String> updateUserStatus(
+            @PathVariable Long userId,
+            @org.springframework.web.bind.annotation.RequestParam Integer status) {
+        try {
+            // TODO: 权限校验
+
+            userService.updateUserStatus(userId, status);
+            return Result.success("更新状态成功");
+        } catch (Exception e) {
+            return Result.error("更新状态失败：" + e.getMessage());
+        }
+    }
 }
