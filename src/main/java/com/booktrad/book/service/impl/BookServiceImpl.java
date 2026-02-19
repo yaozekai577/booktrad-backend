@@ -270,6 +270,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void banBook(Long bookId, String reason) {
+        //判空
         if (bookId == null) {
             throw new RuntimeException("书籍ID不能为空");
         }
