@@ -299,14 +299,14 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderVO> getSellerOrderList() {
         Long currentUserId = UserContext.getUserId();
-        List<OrderVO> orderList = orderMapper.selectSellerOrderList(currentUserId);
+        return orderMapper.selectSellerOrderList(currentUserId);
+    }
 
-        // 设置状态文本
-        for (OrderVO orderVO : orderList) {
-            orderVO.setStatusText(getStatusText(orderVO));
-        }
-
-        return orderList;
+    @Override
+    public com.baomidou.mybatisplus.core.metadata.IPage<OrderVO> getAdminOrderList(Integer pageNum, Integer pageSize, String orderNo) {
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<OrderVO> page = 
+            new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(pageNum, pageSize);
+        return orderMapper.selectAdminOrderPage(page, orderNo);
     }
 
     /**

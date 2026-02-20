@@ -208,4 +208,47 @@
         WHERE id = #{orderId}
     </update>
 
+    <!-- 管理员分页查询订单 -->
+    <select id="selectAdminOrderPage" resultMap="OrderVOMap">
+        SELECT
+            o.id,
+            o.order_no,
+            o.buyer_id,
+            buyer.username AS buyer_name,
+            o.buyer_phone,
+            o.seller_id,
+            seller.username AS seller_name,
+            o.seller_phone,
+            o.book_id,
+            o.book_title,
+            o.book_cover,
+            o.original_price,
+            o.price,
+            o.trade_type,
+            o.meet_location,
+            o.meet_time,
+            o.remark,
+            o.cancel_reason,
+            o.status,
+            o.buyer_confirmed,
+            o.seller_confirmed,
+            o.buyer_reviewed,
+            o.seller_reviewed,
+            o.created_at,
+            o.confirmed_at,
+            o.buyer_confirmed_at,
+            o.seller_confirmed_at,
+            o.completed_at,
+            o.cancelled_at
+        FROM book_order o
+        LEFT JOIN user buyer ON o.buyer_id = buyer.id
+        LEFT JOIN user seller ON o.seller_id = seller.id
+        <where>
+            <if test="orderNo != null and orderNo != ''">
+                o.order_no LIKE CONCAT('%', #{orderNo}, '%')
+            </if>
+        </where>
+        ORDER BY o.created_at DESC
+    </select>
+
 </mapper>

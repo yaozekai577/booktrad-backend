@@ -28,6 +28,11 @@ public class ReviewVO {
     private Long orderId;
 
     /**
+     * 订单号
+     */
+    private String orderNo;
+
+    /**
      * 评价人ID
      */
     private Long reviewerId;

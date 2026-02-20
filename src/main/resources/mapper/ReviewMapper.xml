@@ -129,6 +129,7 @@
         SELECT
             r.id,
             r.order_id,
+            o.order_no,
             r.reviewer_id,
             u1.username AS reviewer_username,
             r.reviewee_id,
@@ -141,6 +142,7 @@
             r.reply_time,
             r.created_at
         FROM order_review r
+        LEFT JOIN book_order o ON r.order_id = o.id
         LEFT JOIN user u1 ON r.reviewer_id = u1.id
         LEFT JOIN user u2 ON r.reviewee_id = u2.id
         WHERE r.status = 1

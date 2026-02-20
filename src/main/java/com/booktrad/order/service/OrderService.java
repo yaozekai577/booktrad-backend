@@ -80,4 +80,13 @@ public interface OrderService {
      * @return 订单列表
      */
     List<OrderVO> getSellerOrderList();
+
+    /**
+     * 管理员获取订单列表
+     * @param pageNum 页码
+     * @param pageSize 每页大小
+     * @param orderNo 订单号（可选）
+     * @return 订单分页列表
+     */
+    com.baomidou.mybatisplus.core.metadata.IPage<OrderVO> getAdminOrderList(Integer pageNum, Integer pageSize, String orderNo);
 }

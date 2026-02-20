@@ -55,4 +55,15 @@ public interface OrderMapper extends BaseMapper<BookOrder> {
      * @return 影响行数
      */
     int updateSellerReviewed(@Param("orderId") Long orderId);
+
+    /**
+     * 管理员分页查询订单
+     * @param page 分页对象
+     * @param orderNo 订单号（可选，模糊查询）
+     * @return 订单列表
+     */
+    com.baomidou.mybatisplus.core.metadata.IPage<OrderVO> selectAdminOrderPage(
+        com.baomidou.mybatisplus.core.metadata.IPage<OrderVO> page, 
+        @Param("orderNo") String orderNo
+    );
 }
