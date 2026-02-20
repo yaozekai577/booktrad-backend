@@ -90,4 +90,11 @@ public class OrderReview {
      */
     @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
+
+    /**
+     * 状态：1-正常 0-已删除
+     */
+    @TableLogic(value = "1", delval = "0")
+    @TableField("status")
+    private Integer status;
 }

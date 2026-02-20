@@ -73,4 +73,18 @@ public interface ReviewService {
      * @return 评价列表
      */
     List<ReviewVO> getMyGivenReviews();
+
+    /**
+     * 管理员获取评价列表
+     * @param pageNum 页码
+     * @param pageSize 每页大小
+     * @return 评价分页列表
+     */
+    com.baomidou.mybatisplus.core.metadata.IPage<ReviewVO> getAdminReviewList(Integer pageNum, Integer pageSize);
+
+    /**
+     * 管理员删除评价
+     * @param reviewId 评价ID
+     */
+    void deleteReview(Long reviewId);
 }

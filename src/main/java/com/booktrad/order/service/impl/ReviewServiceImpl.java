@@ -183,6 +183,28 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewMapper.selectGivenReviews(currentUserId);
     }
 
+    @Override
+    public com.baomidou.mybatisplus.core.metadata.IPage<ReviewVO> getAdminReviewList(Integer pageNum, Integer pageSize) {
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<ReviewVO> page = 
+            new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(pageNum, pageSize);
+        return reviewMapper.selectAdminReviewPage(page);
+    }
+
+    @Override
+    public void deleteReview(Long reviewId) {
+        if (reviewId == null) {
+            throw new RuntimeException("评价ID不能为空");
+        }
+        
+        // 检查评价是否存在
+        ReviewVO review = reviewMapper.selectReviewById(reviewId);
+        if (review == null) {
+            throw new RuntimeException("评价不存在或已被删除");
+        }
+        
+        reviewMapper.deleteReviewById(reviewId);
+    }
+
     /**
      * 更新用户评分统计
      * @param userId 用户ID

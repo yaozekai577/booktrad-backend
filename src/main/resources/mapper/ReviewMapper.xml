@@ -40,6 +40,7 @@
         LEFT JOIN user u1 ON r.reviewer_id = u1.id
         LEFT JOIN user u2 ON r.reviewee_id = u2.id
         WHERE r.id = #{reviewId}
+        AND r.status = 1
     </select>
 
     <!-- 根据订单ID查询评价列表 -->
@@ -62,6 +63,7 @@
         LEFT JOIN user u1 ON r.reviewer_id = u1.id
         LEFT JOIN user u2 ON r.reviewee_id = u2.id
         WHERE r.order_id = #{orderId}
+        AND r.status = 1
         ORDER BY r.created_at DESC
     </select>
 
@@ -85,6 +87,7 @@
         LEFT JOIN user u1 ON r.reviewer_id = u1.id
         LEFT JOIN user u2 ON r.reviewee_id = u2.id
         WHERE r.reviewee_id = #{userId}
+        AND r.status = 1
         ORDER BY r.created_at DESC
     </select>
 
@@ -108,6 +111,7 @@
         LEFT JOIN user u1 ON r.reviewer_id = u1.id
         LEFT JOIN user u2 ON r.reviewee_id = u2.id
         WHERE r.reviewer_id = #{userId}
+        AND r.status = 1
         ORDER BY r.created_at DESC
     </select>
 
@@ -116,6 +120,37 @@
         UPDATE order_review
         SET reply_content = #{replyContent},
             reply_time = NOW()
+        WHERE id = #{reviewId}
+        AND status = 1
+    </update>
+
+    <!-- 管理员分页查询评价 -->
+    <select id="selectAdminReviewPage" resultMap="ReviewVOMap">
+        SELECT
+            r.id,
+            r.order_id,
+            r.reviewer_id,
+            u1.username AS reviewer_username,
+            r.reviewee_id,
+            u2.username AS reviewee_username,
+            r.reviewer_role,
+            r.rating,
+            r.content,
+            r.is_anonymous,
+            r.reply_content,
+            r.reply_time,
+            r.created_at
+        FROM order_review r
+        LEFT JOIN user u1 ON r.reviewer_id = u1.id
+        LEFT JOIN user u2 ON r.reviewee_id = u2.id
+        WHERE r.status = 1
+        ORDER BY r.created_at DESC
+    </select>
+
+    <!-- 删除评价（手写SQL - 逻辑删除） -->
+    <update id="deleteReviewById">
+        UPDATE order_review
+        SET status = 0
         WHERE id = #{reviewId}
     </update>
 

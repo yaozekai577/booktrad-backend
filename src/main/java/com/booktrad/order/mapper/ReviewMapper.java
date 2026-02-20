@@ -58,4 +58,17 @@ public interface ReviewMapper extends BaseMapper<OrderReview> {
      */
     int updateReplyContent(@Param("reviewId") Long reviewId, 
                           @Param("replyContent") String replyContent);
+
+    /**
+     * 管理员分页查询评价
+     * @param page 分页对象
+     * @return 评价列表
+     */
+    com.baomidou.mybatisplus.core.metadata.IPage<ReviewVO> selectAdminReviewPage(com.baomidou.mybatisplus.core.metadata.IPage<ReviewVO> page);
+
+    /**
+     * 删除评价（手写SQL）
+     * @param reviewId 评价ID
+     */
+    void deleteReviewById(@Param("reviewId") Long reviewId);
 }
