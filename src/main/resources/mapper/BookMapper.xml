@@ -288,4 +288,49 @@
         WHERE id = #{bookId}
     </update>
 
+    <!-- 查询同类别的相关书籍（排除当前书籍） -->
+    <select id="selectRelatedBooksByCategory" resultType="com.booktrad.book.vo.BookPageVO">
+        SELECT
+            b.id AS bookId,
+            b.seller_id AS sellerId,
+            b.title,
+            b.author,
+            SUBSTRING_INDEX(b.cover_image, ',', 1) AS coverImg,
+            b.price,
+            b.original_price AS originalPrice,
+            b.preferred_location AS preferredLocation,
+            u.username AS sellerName
+        FROM book b
+        LEFT JOIN user u ON b.seller_id = u.id
+        WHERE b.id != #{bookId}
+        AND b.category_id = #{categoryId}
+        AND b.status = 1
+        AND b.is_banned = 0
+        AND b.deleted_at IS NULL
+        ORDER BY b.view_count DESC, b.created_at DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 随机查询书籍（排除当前书籍） -->
+    <select id="selectRandomBooks" resultType="com.booktrad.book.vo.BookPageVO">
+        SELECT
+            b.id AS bookId,
+            b.seller_id AS sellerId,
+            b.title,
+            b.author,
+            SUBSTRING_INDEX(b.cover_image, ',', 1) AS coverImg,
+            b.price,
+            b.original_price AS originalPrice,
+            b.preferred_location AS preferredLocation,
+            u.username AS sellerName
+        FROM book b
+        LEFT JOIN user u ON b.seller_id = u.id
+        WHERE b.id != #{bookId}
+        AND b.status = 1
+        AND b.is_banned = 0
+        AND b.deleted_at IS NULL
+        ORDER BY RAND()
+        LIMIT #{limit}
+    </select>
+
 </mapper>

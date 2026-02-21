@@ -119,4 +119,30 @@ public interface BookMapper extends BaseMapper<Book> {
      * @param banReason 封禁原因
      */
     void updateBookBanStatus(@Param("bookId") Long bookId, @Param("isBanned") Integer isBanned, @Param("banReason") String banReason);
+
+
+    /**
+     * 查询同类别的相关书籍（排除当前书籍）
+     * @param bookId 当前书籍ID
+     * @param categoryId 书籍类别ID
+     * @param limit 查询数量
+     * @return 相关书籍列表
+     */
+    java.util.List<BookPageVO> selectRelatedBooksByCategory(
+        @Param("bookId") Long bookId,
+        @Param("categoryId") Long categoryId,
+        @Param("limit") Integer limit
+    );
+
+    /**
+     * 随机查询书籍（排除当前书籍）
+     * @param bookId 当前书籍ID
+     * @param limit 查询数量
+     * @return 随机书籍列表
+     */
+    java.util.List<BookPageVO> selectRandomBooks(
+        @Param("bookId") Long bookId,
+        @Param("limit") Integer limit
+    );
+
 }

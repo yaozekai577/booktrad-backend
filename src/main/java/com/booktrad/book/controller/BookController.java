@@ -214,4 +214,23 @@ public class BookController {
             return Result.error("解封书籍失败：" + e.getMessage());
         }
     }
+
+    /**
+     * 获取相关推荐书籍（看过这本书的人也看了）
+     * @param id 当前书籍ID
+     * @param limit 推荐数量，默认6本
+     * @return 推荐书籍列表
+     */
+    @GetMapping("/{id}/related")
+    public Result<java.util.List<BookPageVO>> getRelatedBooks(
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "6") Integer limit) {
+        try {
+            java.util.List<BookPageVO> relatedBooks = bookService.getRelatedBooks(id, limit);
+            return Result.success(relatedBooks);
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
+    }
+
 }

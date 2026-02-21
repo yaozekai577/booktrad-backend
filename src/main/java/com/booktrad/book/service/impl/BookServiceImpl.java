@@ -350,4 +350,39 @@ public class BookServiceImpl implements BookService {
             bookVO.setIsBannedDesc("正常");
         }
     }
+
+
+    /**
+     * 获取相关推荐书籍（看过这本书的人也看了）
+     */
+    @Override
+    public List<BookPageVO> getRelatedBooks(Long bookId, Integer limit) {
+        // 默认推荐6本
+        if (limit == null || limit <= 0) {
+            limit = 6;
+        }
+
+        // 先获取当前书籍信息，获取其类别（使用手写SQL）
+        Book currentBook = bookMapper.selectBookEntityById(bookId);
+        if (currentBook == null) {
+            throw new RuntimeException("书籍不存在");
+        }
+
+        // 优先查询同类别的书籍（排除当前书籍）
+        List<BookPageVO> relatedBooks = bookMapper.selectRelatedBooksByCategory(
+            bookId,
+            currentBook.getCategoryId(),
+            limit
+        );
+
+        // 如果同类别书籍不够，随机补充其他书籍
+        if (relatedBooks.size() < limit) {
+            int remaining = limit - relatedBooks.size();
+            List<BookPageVO> randomBooks = bookMapper.selectRandomBooks(bookId, remaining);
+            relatedBooks.addAll(randomBooks);
+        }
+
+        return relatedBooks;
+    }
+
 }

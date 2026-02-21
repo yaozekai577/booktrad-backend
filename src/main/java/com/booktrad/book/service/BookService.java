@@ -93,4 +93,15 @@ public interface BookService {
      * @param bookId 书籍ID
      */
     void unbanBook(Long bookId);
+
+
+    /**
+     * 获取相关推荐书籍（看过这本书的人也看了）
+     * 优先推荐同类别的书籍，不够则随机补充其他书籍
+     * @param bookId 当前书籍ID
+     * @param limit 推荐数量，默认6本
+     * @return 推荐书籍列表
+     */
+    java.util.List<BookPageVO> getRelatedBooks(Long bookId, Integer limit);
+
 }
