@@ -38,7 +38,7 @@ public class AiChatSession {
      * 对应数据库字段：title
      * 默认值：AI助手对话
      */
-    @TableField("title")
+    @TableField(value = "title", updateStrategy = FieldStrategy.NOT_NULL)
     private String title;
     
     /**

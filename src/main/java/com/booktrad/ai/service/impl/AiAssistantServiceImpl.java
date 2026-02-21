@@ -51,7 +51,7 @@ public class AiAssistantServiceImpl implements AiAssistantService {
         if (sessionId == null) {
             AiChatSession session = new AiChatSession();
             session.setUserId(userId);
-            session.setTitle("AI助手对话");
+            // session.setTitle("AI助手对话");
             session.setMessageCount(0);
             sessionMapper.insert(session);
             sessionId = session.getId();
@@ -114,12 +114,13 @@ public class AiAssistantServiceImpl implements AiAssistantService {
         session.setMessageCount(session.getMessageCount() + 2);
         
         // 自动生成会话标题（第一次对话时）
-        if (session.getMessageCount() == 2 && "AI助手对话".equals(session.getTitle())) {
+        if (session.getMessageCount() <= 2 && (session.getTitle() == null || "AI助手对话".equals(session.getTitle()) || "新对话".equals(session.getTitle()))) {
             String title = message.length() > 20 ? message.substring(0, 20) + "..." : message;
             session.setTitle(title);
+            sessionMapper.updateById(session);
+        } else {
+             sessionMapper.updateById(session);
         }
-        
-        sessionMapper.updateById(session);
         
         // 6. 构造返回结果
         AiChatResponseVO response = new AiChatResponseVO();
@@ -318,7 +319,7 @@ public class AiAssistantServiceImpl implements AiAssistantService {
         
         AiChatSession session = new AiChatSession();
         session.setUserId(userId);
-        session.setTitle("新对话");
+        // session.setTitle("新对话");
         session.setMessageCount(0);
         
         sessionMapper.insert(session);
@@ -385,7 +386,7 @@ public class AiAssistantServiceImpl implements AiAssistantService {
             if (sessionId == null) {
                 AiChatSession session = new AiChatSession();
                 session.setUserId(userId);
-                session.setTitle("AI助手对话");
+                // session.setTitle("AI助手对话");
                 session.setMessageCount(0);
                 sessionMapper.insert(session);
                 sessionId = session.getId();
@@ -519,11 +520,12 @@ public class AiAssistantServiceImpl implements AiAssistantService {
         session.setMessageCount(session.getMessageCount() + 2);
         
         // 自动生成会话标题（第一次对话时）
-        if (session.getMessageCount() == 2 && "AI助手对话".equals(session.getTitle())) {
+        if (session.getMessageCount() <= 2 && (session.getTitle() == null || "AI助手对话".equals(session.getTitle()) || "新对话".equals(session.getTitle()))) {
             String title = message.length() > 20 ? message.substring(0, 20) + "..." : message;
             session.setTitle(title);
+            sessionMapper.updateById(session);
+        } else {
+             sessionMapper.updateById(session);
         }
-        
-        sessionMapper.updateById(session);
     }
 }
