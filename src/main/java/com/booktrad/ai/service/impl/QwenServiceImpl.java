@@ -46,7 +46,7 @@ public class QwenServiceImpl implements QwenService {
             // 构建提示词
             String conditionText = getConditionText(condition);
             String prompt = String.format(
-                "请为以下二手书籍生成一段吸引人的描述（100-150字）：\n" +
+                "请为以下二手书籍生成一段吸引人的描述（100-150字），不用引导用户回复：\n" +
                 "书名：%s\n" +
                 "作者：%s\n" +
                 "分类：%s\n" +
