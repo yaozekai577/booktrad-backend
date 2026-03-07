@@ -7,7 +7,11 @@
         SELECT
             cs.id,
             cs.book_id,
-            b.title AS book_title,
+            cs.wanted_id,
+            CASE
+                WHEN cs.wanted_id IS NOT NULL AND cs.wanted_id > 0 THEN CONCAT('求购：', IFNULL(wr.title, '未知求购'))
+                ELSE b.title
+            END AS book_title,
             b.cover_image AS book_cover,
             cs.buyer_id,
             buyer.username AS buyer_name,
@@ -27,6 +31,7 @@
             cs.created_at
         FROM chat_session cs
         LEFT JOIN book b ON cs.book_id = b.id
+        LEFT JOIN wanted_request wr ON cs.wanted_id = wr.id AND wr.deleted_at IS NULL
         LEFT JOIN user buyer ON cs.buyer_id = buyer.id
         LEFT JOIN user seller ON cs.seller_id = seller.id
         WHERE (cs.buyer_id = #{userId} OR cs.seller_id = #{userId})
@@ -39,7 +44,11 @@
         SELECT
             cs.id,
             cs.book_id,
-            b.title AS book_title,
+            cs.wanted_id,
+            CASE
+                WHEN cs.wanted_id IS NOT NULL AND cs.wanted_id > 0 THEN CONCAT('求购：', IFNULL(wr.title, '未知求购'))
+                ELSE b.title
+            END AS book_title,
             b.cover_image AS book_cover,
             cs.buyer_id,
             buyer.username AS buyer_name,
@@ -59,6 +68,7 @@
             cs.created_at
         FROM chat_session cs
         LEFT JOIN book b ON cs.book_id = b.id
+        LEFT JOIN wanted_request wr ON cs.wanted_id = wr.id AND wr.deleted_at IS NULL
         LEFT JOIN user buyer ON cs.buyer_id = buyer.id
         LEFT JOIN user seller ON cs.seller_id = seller.id
         WHERE cs.id = #{sessionId}

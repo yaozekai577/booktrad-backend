@@ -32,6 +32,12 @@ public class ChatSession {
     private Long bookId;
 
     /**
+     * 关联求购ID
+     */
+    @TableField("wanted_id")
+    private Long wantedId;
+
+    /**
      * 买家用户ID
      */
     @TableField("buyer_id")

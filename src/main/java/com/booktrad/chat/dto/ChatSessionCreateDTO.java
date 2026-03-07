@@ -22,6 +22,11 @@ public class ChatSessionCreateDTO {
     private Long bookId;
 
     /**
+     * 求购ID
+     */
+    private Long wantedId;
+
+    /**
      * 卖家用户ID
      */
     private Long sellerId;

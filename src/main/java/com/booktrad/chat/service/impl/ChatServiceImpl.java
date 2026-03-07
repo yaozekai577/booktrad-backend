@@ -45,10 +45,27 @@ public class ChatServiceImpl implements ChatService {
     @Transactional(rollbackFor = Exception.class)
     public ChatSessionVO createOrGetSession(ChatSessionCreateDTO createDTO) {
         Long currentUserId = UserContext.getUserId();
+        if (currentUserId == null) {
+            throw new RuntimeException("未授权，请先登录");
+        }
+        if (createDTO.getSellerId() == null) {
+            throw new RuntimeException("对方用户ID不能为空");
+        }
+        if (currentUserId.equals(createDTO.getSellerId())) {
+            throw new RuntimeException("不能和自己创建会话");
+        }
+        boolean hasBookContext = createDTO.getBookId() != null && createDTO.getBookId() > 0;
+        boolean hasWantedContext = createDTO.getWantedId() != null && createDTO.getWantedId() > 0;
+        if (!hasBookContext && !hasWantedContext) {
+            throw new RuntimeException("书籍ID或求购ID至少传一个");
+        }
+        Long bookId = hasBookContext ? createDTO.getBookId() : 0L;
+        Long wantedId = hasWantedContext ? createDTO.getWantedId() : 0L;
 
         // 查询是否已存在会话
         LambdaQueryWrapper<ChatSession> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ChatSession::getBookId, createDTO.getBookId())
+        queryWrapper.eq(ChatSession::getBookId, bookId)
+                .eq(ChatSession::getWantedId, wantedId)
                 .eq(ChatSession::getBuyerId, currentUserId)
                 .eq(ChatSession::getSellerId, createDTO.getSellerId())
                 .eq(ChatSession::getStatus, 1);
@@ -62,7 +79,8 @@ public class ChatServiceImpl implements ChatService {
 
         // 创建新会话
         ChatSession session = new ChatSession();
-        session.setBookId(createDTO.getBookId());
+        session.setBookId(bookId);
+        session.setWantedId(wantedId);
         session.setBuyerId(currentUserId);
         session.setSellerId(createDTO.getSellerId());
         session.setStatus(1);
