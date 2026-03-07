@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.booktrad.wanted.mapper.WantedMapper">
+
+    <select id="selectWantedPage" resultType="com.booktrad.wanted.vo.WantedPageVO">
+        SELECT
+            w.id,
+            w.buyer_id AS buyerId,
+            u.username AS buyerName,
+            u.buyer_rating_score AS buyerRatingScore,
+            w.title,
+            w.author,
+            w.category_id AS categoryId,
+            w.budget,
+            w.desired_condition AS desiredCondition,
+            w.expected_location AS expectedLocation,
+            w.description,
+            w.status,
+            w.created_at AS createdAt,
+            CASE WHEN #{currentUserId} IS NOT NULL AND w.buyer_id = #{currentUserId} THEN 1 ELSE 0 END AS isOwner
+        FROM wanted_request w
+        LEFT JOIN user u ON w.buyer_id = u.id
+        WHERE w.deleted_at IS NULL
+        AND (
+            w.status = 1
+            OR (#{currentUserId} IS NOT NULL AND w.buyer_id = #{currentUserId})
+        )
+        <if test="query.keyword != null and query.keyword != ''">
+            AND (
+                w.title LIKE CONCAT('%', #{query.keyword}, '%')
+                OR w.author LIKE CONCAT('%', #{query.keyword}, '%')
+                OR w.description LIKE CONCAT('%', #{query.keyword}, '%')
+            )
+        </if>
+        <if test="query.categoryId != null">
+            AND w.category_id = #{query.categoryId}
+        </if>
+        <if test="query.status != null">
+            AND w.status = #{query.status}
+        </if>
+        <choose>
+            <when test="query.sortField != null and query.sortField == 'budget'.toString() and query.sortOrder == 'asc'.toString()">
+                ORDER BY
+                CASE WHEN #{currentUserId} IS NOT NULL AND w.buyer_id = #{currentUserId} THEN 1 ELSE 0 END ASC,
+                w.budget ASC
+            </when>
+            <when test="query.sortField != null and query.sortField == 'budget'.toString() and query.sortOrder == 'desc'.toString()">
+                ORDER BY
+                CASE WHEN #{currentUserId} IS NOT NULL AND w.buyer_id = #{currentUserId} THEN 1 ELSE 0 END ASC,
+                w.budget DESC
+            </when>
+            <when test="query.sortField != null and query.sortField == 'createdAt'.toString() and query.sortOrder == 'asc'.toString()">
+                ORDER BY
+                CASE WHEN #{currentUserId} IS NOT NULL AND w.buyer_id = #{currentUserId} THEN 1 ELSE 0 END ASC,
+                w.created_at ASC
+            </when>
+            <otherwise>
+                ORDER BY
+                CASE WHEN #{currentUserId} IS NOT NULL AND w.buyer_id = #{currentUserId} THEN 1 ELSE 0 END ASC,
+                w.created_at DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectMyWantedPage" resultType="com.booktrad.wanted.vo.WantedPageVO">
+        SELECT
+            w.id,
+            w.buyer_id AS buyerId,
+            u.username AS buyerName,
+            u.buyer_rating_score AS buyerRatingScore,
+            w.title,
+            w.author,
+            w.category_id AS categoryId,
+            w.budget,
+            w.desired_condition AS desiredCondition,
+            w.expected_location AS expectedLocation,
+            w.description,
+            w.status,
+            w.created_at AS createdAt,
+            1 AS isOwner
+        FROM wanted_request w
+        LEFT JOIN user u ON w.buyer_id = u.id
+        WHERE w.deleted_at IS NULL
+        AND w.buyer_id = #{buyerId}
+        <if test="query.keyword != null and query.keyword != ''">
+            AND (
+                w.title LIKE CONCAT('%', #{query.keyword}, '%')
+                OR w.author LIKE CONCAT('%', #{query.keyword}, '%')
+                OR w.description LIKE CONCAT('%', #{query.keyword}, '%')
+            )
+        </if>
+        <if test="query.status != null">
+            AND w.status = #{query.status}
+        </if>
+        ORDER BY w.created_at DESC
+    </select>
+
+    <select id="selectWantedDetailById" resultType="com.booktrad.wanted.vo.WantedDetailVO">
+        SELECT
+            w.id,
+            w.buyer_id AS buyerId,
+            u.username AS buyerName,
+            u.buyer_rating_score AS buyerRatingScore,
+            u.buyer_rating_count AS buyerRatingCount,
+            w.title,
+            w.author,
+            w.category_id AS categoryId,
+            w.budget,
+            w.desired_condition AS desiredCondition,
+            w.expected_location AS expectedLocation,
+            w.description,
+            CASE WHEN #{currentUserId} IS NOT NULL AND (#{currentUserId} = w.buyer_id) THEN w.contact_phone ELSE NULL END AS contactPhone,
+            w.status,
+            w.close_reason AS closeReason,
+            w.closed_at AS closedAt,
+            w.created_at AS createdAt,
+            w.updated_at AS updatedAt
+        FROM wanted_request w
+        LEFT JOIN user u ON w.buyer_id = u.id
+        WHERE w.id = #{id}
+        AND w.deleted_at IS NULL
+        AND (
+            w.status = 1
+            OR (#{currentUserId} IS NOT NULL AND w.buyer_id = #{currentUserId})
+        )
+    </select>
+
+    <select id="selectWantedEntityById" resultType="com.booktrad.wanted.entity.WantedRequest">
+        SELECT
+            w.id,
+            w.buyer_id AS buyerId,
+            w.title,
+            w.author,
+            w.category_id AS categoryId,
+            w.budget,
+            w.desired_condition AS desiredCondition,
+            w.expected_location AS expectedLocation,
+            w.description,
+            w.contact_phone AS contactPhone,
+            w.status,
+            w.close_reason AS closeReason,
+            w.closed_at AS closedAt,
+            w.created_at AS createdAt,
+            w.updated_at AS updatedAt,
+            w.deleted_at AS deletedAt
+        FROM wanted_request w
+        WHERE w.id = #{id}
+          AND w.deleted_at IS NULL
+    </select>
+
+    <update id="closeWanted">
+        UPDATE wanted_request
+        SET status = 2,
+            close_reason = #{closeReason},
+            closed_at = NOW(),
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND buyer_id = #{buyerId}
+          AND deleted_at IS NULL
+          AND status = 1
+    </update>
+
+    <update id="softDeleteWanted">
+        UPDATE wanted_request
+        SET deleted_at = NOW(),
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND buyer_id = #{buyerId}
+          AND deleted_at IS NULL
+    </update>
+
+    <select id="selectMatchBooks" resultType="com.booktrad.wanted.vo.WantedMatchBookVO">
+        SELECT
+            b.id AS bookId,
+            b.seller_id AS sellerId,
+            u.username AS sellerName,
+            u.seller_rating_score AS sellerRatingScore,
+            b.title,
+            b.author,
+            b.category_id AS categoryId,
+            b.price,
+            SUBSTRING_INDEX(b.cover_image, ',', 1) AS coverImg,
+            b.preferred_location AS preferredLocation
+        FROM wanted_request w
+        INNER JOIN book b ON b.status = 1
+            AND b.is_banned = 0
+            AND b.deleted_at IS NULL
+            AND (
+                w.desired_condition IS NULL
+                OR w.desired_condition = ''
+                OR w.desired_condition = '不限'
+                OR (w.desired_condition = '全新' AND b.book_condition = 1)
+                OR (w.desired_condition = '九成新及以上' AND b.book_condition IN (1, 2))
+                OR (w.desired_condition = '八成新及以上' AND b.book_condition IN (1, 2, 3))
+                OR (w.desired_condition = '有正常使用痕迹' AND b.book_condition IN (1, 2, 3, 4))
+            )
+            AND (
+                b.category_id = w.category_id
+                OR b.title LIKE CONCAT('%', w.title, '%')
+                OR (w.author IS NOT NULL AND w.author != '' AND b.author LIKE CONCAT('%', w.author, '%'))
+            )
+            AND b.price &lt;= w.budget
+        LEFT JOIN user u ON b.seller_id = u.id
+        WHERE w.id = #{wantedId}
+          AND w.deleted_at IS NULL
+        ORDER BY b.created_at DESC
+        LIMIT #{limit}
+    </select>
+</mapper>

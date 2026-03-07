@@ -62,7 +62,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                     "/api/auth/login", 
                     "/api/auth/register",
-                    "/api/auth/seller/**" // 允许未登录访问卖家主页
+                    "/api/auth/seller/**",
+                    "/api/wanted/page" // 允许未登录访问求购广场列表
                     //    , "/api/upload/**"
                 );
     }
