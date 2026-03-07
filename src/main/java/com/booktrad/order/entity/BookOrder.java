@@ -51,6 +51,12 @@ public class BookOrder {
     private Long bookId;
 
     /**
+     * 关联求购ID，普通图书订单为0
+     */
+    @TableField("wanted_id")
+    private Long wantedId;
+
+    /**
      * 书籍标题（冗余）
      */
     @TableField("book_title")

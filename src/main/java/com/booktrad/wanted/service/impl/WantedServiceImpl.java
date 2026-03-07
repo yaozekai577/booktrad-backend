@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -38,7 +39,9 @@ public class WantedServiceImpl implements WantedService {
         Integer size = queryDTO.getSize() == null || queryDTO.getSize() < 1 ? 6 : queryDTO.getSize();
         Long currentUserId = UserContext.getUserId();
         Page<WantedPageVO> pageParam = new Page<>(page, size);
-        return wantedMapper.selectWantedPage(pageParam, queryDTO, currentUserId);
+        IPage<WantedPageVO> result = wantedMapper.selectWantedPage(pageParam, queryDTO, currentUserId);
+        result.getRecords().sort(Comparator.comparing(item -> item.getIsOwner() != null && item.getIsOwner() == 1));
+        return result;
     }
 
     /**
@@ -135,8 +138,8 @@ public class WantedServiceImpl implements WantedService {
         if (!userId.equals(existed.getBuyerId())) {
             throw new RuntimeException("只有发布人可以修改求购");
         }
-        if (existed.getStatus() != null && existed.getStatus() == 2) {
-            throw new RuntimeException("已关闭的求购不允许修改");
+        if (existed.getStatus() == null || existed.getStatus() != 1) {
+            throw new RuntimeException("仅求购中的信息允许修改");
         }
 
         existed.setTitle(updateDTO.getTitle().trim());
@@ -168,8 +171,8 @@ public class WantedServiceImpl implements WantedService {
         if (!userId.equals(wantedRequest.getBuyerId())) {
             throw new RuntimeException("只有发布人可以关闭求购");
         }
-        if (wantedRequest.getStatus() != null && wantedRequest.getStatus() == 2) {
-            throw new RuntimeException("该求购已经关闭");
+        if (wantedRequest.getStatus() == null || wantedRequest.getStatus() != 1) {
+            throw new RuntimeException("仅求购中的信息允许关闭");
         }
         String closeReason = closeDTO == null ? null : closeDTO.getCloseReason();
         int affected = wantedMapper.closeWanted(id, userId, closeReason);
@@ -216,10 +219,8 @@ public class WantedServiceImpl implements WantedService {
         if (wantedRequest == null || wantedRequest.getDeletedAt() != null) {
             throw new RuntimeException("求购信息不存在");
         }
-        if (wantedRequest.getStatus() != null
-                && wantedRequest.getStatus() == 2
-                && (currentUserId == null || !currentUserId.equals(wantedRequest.getBuyerId()))) {
-            throw new RuntimeException("求购信息不存在");
+        if (wantedRequest.getStatus() == null || wantedRequest.getStatus() != 1) {
+            throw new RuntimeException("该求购当前不可匹配");
         }
         return wantedMapper.selectMatchBooks(wantedId, finalLimit);
     }

@@ -21,10 +21,7 @@
         FROM wanted_request w
         LEFT JOIN user u ON w.buyer_id = u.id
         WHERE w.deleted_at IS NULL
-        AND (
-            w.status = 1
-            OR (#{currentUserId} IS NOT NULL AND w.buyer_id = #{currentUserId})
-        )
+        AND w.status = 1
         <if test="query.keyword != null and query.keyword != ''">
             AND (
                 w.title LIKE CONCAT('%', #{query.keyword}, '%')
@@ -160,6 +157,37 @@
           AND status = 1
     </update>
 
+    <update id="markWantedTrading">
+        UPDATE wanted_request
+        SET status = 3,
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND deleted_at IS NULL
+          AND status = 1
+    </update>
+
+    <update id="markWantedTraded">
+        UPDATE wanted_request
+        SET status = 4,
+            close_reason = #{closeReason},
+            closed_at = NOW(),
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND deleted_at IS NULL
+          AND status = 3
+    </update>
+
+    <update id="restoreWantedToOpen">
+        UPDATE wanted_request
+        SET status = 1,
+            close_reason = NULL,
+            closed_at = NULL,
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND deleted_at IS NULL
+          AND status = 3
+    </update>
+
     <update id="softDeleteWanted">
         UPDATE wanted_request
         SET deleted_at = NOW(),
@@ -203,6 +231,7 @@
         LEFT JOIN user u ON b.seller_id = u.id
         WHERE w.id = #{wantedId}
           AND w.deleted_at IS NULL
+          AND w.status = 1
         ORDER BY b.created_at DESC
         LIMIT #{limit}
     </select>

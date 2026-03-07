@@ -333,4 +333,25 @@
         LIMIT #{limit}
     </select>
 
+    <select id="selectSellerOnSaleBooksForSupply" resultType="com.booktrad.book.entity.Book">
+        SELECT
+            id,
+            seller_id,
+            title,
+            author,
+            category_id,
+            price,
+            cover_image,
+            status,
+            is_banned,
+            created_at,
+            deleted_at
+        FROM book
+        WHERE seller_id = #{sellerId}
+          AND status = 1
+          AND is_banned = 0
+          AND deleted_at IS NULL
+        ORDER BY created_at DESC
+    </select>
+
 </mapper>

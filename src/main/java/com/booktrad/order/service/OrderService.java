@@ -2,6 +2,7 @@ package com.booktrad.order.service;
 
 import com.booktrad.order.dto.OrderCancelDTO;
 import com.booktrad.order.dto.OrderCreateDTO;
+import com.booktrad.order.dto.WantedSupplyOrderCreateDTO;
 import com.booktrad.order.vo.OrderVO;
 
 import java.util.List;
@@ -25,6 +26,8 @@ public interface OrderService {
      * @return 订单详情
      */
     OrderVO createOrder(OrderCreateDTO createDTO);
+
+    OrderVO createWantedSupplyOrder(WantedSupplyOrderCreateDTO createDTO);
 
     /**
      * 卖家确认接单

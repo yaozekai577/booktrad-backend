@@ -3,6 +3,7 @@ package com.booktrad.order.controller;
 import com.booktrad.common.result.Result;
 import com.booktrad.order.dto.OrderCancelDTO;
 import com.booktrad.order.dto.OrderCreateDTO;
+import com.booktrad.order.dto.WantedSupplyOrderCreateDTO;
 import com.booktrad.order.service.OrderService;
 import com.booktrad.order.vo.OrderVO;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,12 @@ public class OrderController {
     @PostMapping
     public Result<OrderVO> createOrder(@RequestBody OrderCreateDTO createDTO) {
         OrderVO orderVO = orderService.createOrder(createDTO);
+        return Result.success(orderVO);
+    }
+
+    @PostMapping("/wanted-supply")
+    public Result<OrderVO> createWantedSupplyOrder(@RequestBody WantedSupplyOrderCreateDTO createDTO) {
+        OrderVO orderVO = orderService.createWantedSupplyOrder(createDTO);
         return Result.success(orderVO);
     }
 

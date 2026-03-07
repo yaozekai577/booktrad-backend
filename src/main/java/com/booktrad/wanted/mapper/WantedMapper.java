@@ -29,6 +29,12 @@ public interface WantedMapper extends BaseMapper<WantedRequest> {
 
     int closeWanted(@Param("id") Long id, @Param("buyerId") Long buyerId, @Param("closeReason") String closeReason);
 
+    int markWantedTrading(@Param("id") Long id);
+
+    int markWantedTraded(@Param("id") Long id, @Param("closeReason") String closeReason);
+
+    int restoreWantedToOpen(@Param("id") Long id);
+
     int softDeleteWanted(@Param("id") Long id, @Param("buyerId") Long buyerId);
 
     List<WantedMatchBookVO> selectMatchBooks(@Param("wantedId") Long wantedId, @Param("limit") Integer limit);

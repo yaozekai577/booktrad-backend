@@ -75,6 +75,11 @@ public class OrderVO {
     private Long bookId;
 
     /**
+     * 关联求购ID
+     */
+    private Long wantedId;
+
+    /**
      * 书籍标题
      */
     private String bookTitle;

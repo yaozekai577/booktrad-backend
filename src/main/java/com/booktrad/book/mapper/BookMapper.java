@@ -145,4 +145,6 @@ public interface BookMapper extends BaseMapper<Book> {
         @Param("limit") Integer limit
     );
 
+    java.util.List<Book> selectSellerOnSaleBooksForSupply(@Param("sellerId") Long sellerId);
+
 }

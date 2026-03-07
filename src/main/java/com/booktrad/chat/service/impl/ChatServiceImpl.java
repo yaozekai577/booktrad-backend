@@ -15,6 +15,7 @@ import com.booktrad.chat.websocket.ChatWebSocketHandler;
 import com.booktrad.common.context.UserContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,14 +62,22 @@ public class ChatServiceImpl implements ChatService {
         }
         Long bookId = hasBookContext ? createDTO.getBookId() : 0L;
         Long wantedId = hasWantedContext ? createDTO.getWantedId() : 0L;
+        Long legacyWantedBookId = (hasWantedContext && !hasBookContext) ? createDTO.getWantedId() : null;
 
         // 查询是否已存在会话
         LambdaQueryWrapper<ChatSession> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ChatSession::getBookId, bookId)
-                .eq(ChatSession::getWantedId, wantedId)
-                .eq(ChatSession::getBuyerId, currentUserId)
+        queryWrapper.eq(ChatSession::getBuyerId, currentUserId)
                 .eq(ChatSession::getSellerId, createDTO.getSellerId())
                 .eq(ChatSession::getStatus, 1);
+        if (hasWantedContext && !hasBookContext) {
+            queryWrapper.and(w -> w
+                    .and(v -> v.eq(ChatSession::getBookId, 0L).eq(ChatSession::getWantedId, wantedId))
+                    .or(v -> v.eq(ChatSession::getBookId, legacyWantedBookId).eq(ChatSession::getWantedId, wantedId)));
+        } else {
+            queryWrapper.eq(ChatSession::getBookId, bookId)
+                    .eq(ChatSession::getWantedId, wantedId);
+        }
+        queryWrapper.last("ORDER BY created_at DESC LIMIT 1");
 
         ChatSession existSession = chatSessionMapper.selectOne(queryWrapper);
 
@@ -86,7 +95,15 @@ public class ChatServiceImpl implements ChatService {
         session.setStatus(1);
         session.setLastMessageTime(LocalDateTime.now());
 
-        chatSessionMapper.insert(session);
+        try {
+            chatSessionMapper.insert(session);
+        } catch (DuplicateKeyException e) {
+            ChatSession retrySession = chatSessionMapper.selectOne(queryWrapper);
+            if (retrySession != null) {
+                return chatSessionMapper.selectSessionDetailById(retrySession.getId(), currentUserId);
+            }
+            throw new RuntimeException("会话创建失败：聊天表唯一索引与当前逻辑不一致，请执行数据库迁移脚本后重试");
+        }
 
         return chatSessionMapper.selectSessionDetailById(session.getId(), currentUserId);
     }

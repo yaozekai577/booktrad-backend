@@ -15,6 +15,7 @@
         <result column="seller_phone" property="sellerPhone"/>
         <result column="seller_rating_score" property="sellerRatingScore"/>
         <result column="book_id" property="bookId"/>
+        <result column="wanted_id" property="wantedId"/>
         <result column="book_title" property="bookTitle"/>
         <result column="book_cover" property="bookCover"/>
         <result column="original_price" property="originalPrice"/>
@@ -51,6 +52,7 @@
             o.seller_phone,
             seller.seller_rating_score AS seller_rating_score,
             o.book_id,
+            o.wanted_id,
             o.book_title,
             o.book_cover,
             o.original_price,
@@ -89,6 +91,7 @@
             seller.username AS seller_name,
             o.seller_phone,
             o.book_id,
+            o.wanted_id,
             o.book_title,
             o.book_cover,
             o.original_price,
@@ -128,6 +131,7 @@
             seller.username AS seller_name,
             o.seller_phone,
             o.book_id,
+            o.wanted_id,
             o.book_title,
             o.book_cover,
             o.original_price,
@@ -167,6 +171,7 @@
             seller.username AS seller_name,
             o.seller_phone,
             o.book_id,
+            o.wanted_id,
             o.book_title,
             o.book_cover,
             o.original_price,
@@ -220,6 +225,7 @@
             seller.username AS seller_name,
             o.seller_phone,
             o.book_id,
+            o.wanted_id,
             o.book_title,
             o.book_cover,
             o.original_price,
