@@ -12,12 +12,14 @@ import com.booktrad.user.service.UserService;
 import com.booktrad.user.vo.SellerProfileVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /** 
  * 项目名称：booktrad 
@@ -39,6 +41,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     /**
      * 根据用户名查询用户
@@ -69,7 +74,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public String generateToken(Long userId, Integer role) {
         // 使用JwtUtil工具类生成token
-        return JwtUtil.generateToken(userId, role);
+        String token = JwtUtil.generateToken(userId, role);
+        
+        // 将token存入Redis，设置48小时过期，key格式：login:token:userId
+        String redisKey = "login:token:" + userId;
+        redisTemplate.opsForValue().set(redisKey, token, 48, TimeUnit.HOURS);
+        
+        log.info("生成Token并存入Redis，userId: {}, token: {}", userId, token);
+        return token;
     }
 
     /**

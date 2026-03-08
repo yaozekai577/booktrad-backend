@@ -10,6 +10,7 @@ import com.booktrad.user.service.UserService;
 import com.booktrad.user.vo.LoginVO;
 import com.booktrad.user.vo.SellerProfileVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,10 +37,18 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
     /**
      * 用户登录接口
      * @param loginDTO 登录请求DTO，包含用户名和密码
      * @return 统一返回格式，包含登录成功的用户信息和JWT token
+     * 痛点：
+     * 纯 JWT 一旦颁发，在过期时间（如 7 天）内，服务器无法强制其失效。即使用户修改密码、被管理员封号，旧 Token 依然有效。
+     * 纯 JWT 前端点“退出”只是删除了本地存储，Token 本身依然有效。如果该 Token 被拦截，攻击者仍可使用
+     *
+     * 存入 Redis 是为了在 享受 JWT 轻量级 的同时， 补全对 Token 生命周期的控制权 （撤销、续期、互斥）。这是生产环境中非常标准的做法。
      */
     @PostMapping("/login")
     public Result<LoginVO> login(@RequestBody LoginDTO loginDTO) {
@@ -103,6 +112,26 @@ public class UserController {
         } catch (RuntimeException e) {
             // 注册失败，返回错误信息
             return Result.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 用户退出登录接口
+     * @return 统一返回格式
+     */
+    @PostMapping("/logout")
+    public Result<String> logout() {
+        try {
+            // 从上下文中获取当前登录用户ID
+            Long userId = UserContext.getUserId();
+            if (userId != null) {
+                // 删除Redis中的token
+                String redisKey = "login:token:" + userId;
+                redisTemplate.delete(redisKey);
+            }
+            return Result.success("退出登录成功");
+        } catch (Exception e) {
+            return Result.error("退出登录失败：" + e.getMessage());
         }
     }
 

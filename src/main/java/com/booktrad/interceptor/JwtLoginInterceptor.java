@@ -7,13 +7,17 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.util.StringUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.concurrent.TimeUnit;
 
 /** 
  * 项目名称：booktrad 
@@ -28,6 +32,9 @@ import java.io.PrintWriter;
  */
 @Component
 public class JwtLoginInterceptor implements HandlerInterceptor {
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     /**
      * 请求处理前执行
@@ -64,6 +71,20 @@ public class JwtLoginInterceptor implements HandlerInterceptor {
             // 5. 从token中获取用户ID和角色
             Long userId = claims.get("userId", Long.class);
             Integer role = claims.get("role", Integer.class);
+            
+            // 5.1 校验Redis中的token是否有效
+            String redisKey = "login:token:" + userId;
+            String redisToken = redisTemplate.opsForValue().get(redisKey);
+            
+            if (!StringUtils.hasText(redisToken) || !token.equals(redisToken)) {
+                // Redis中不存在token或token不一致（可能是账号在其他地方登录，或者token已过期被Redis清除）
+                returnJson(response, Result.error(401, "登录已失效，请重新登录"));
+                return false;
+            }
+            
+            // 5.2 自动续期（可选）：如果Token快过期了，可以刷新Redis过期时间
+            // 这里简单处理：每次访问都重置为48小时
+            redisTemplate.expire(redisKey, 48, TimeUnit.HOURS);
             
             // 6. 将用户信息存入ThreadLocal
             UserContext.setUserId(userId);
