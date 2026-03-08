@@ -143,12 +143,16 @@ public class ChatServiceImpl implements ChatService {
 
         chatMessageMapper.insert(message);
 
-        // 更新会话的最后消息信息
         ChatSession session = new ChatSession();
         session.setId(sendDTO.getSessionId());
-        session.setLastMessage(sendDTO.getContent().length() > 50 
-                ? sendDTO.getContent().substring(0, 50) + "..." 
-                : sendDTO.getContent());
+        String lastMessage;
+        if (sendDTO.getMessageType() != null && sendDTO.getMessageType() == 2) {
+            lastMessage = "[图片]";
+        } else {
+            String content = sendDTO.getContent() == null ? "" : sendDTO.getContent();
+            lastMessage = content.length() > 50 ? content.substring(0, 50) + "..." : content;
+        }
+        session.setLastMessage(lastMessage);
         session.setLastMessageTime(LocalDateTime.now());
         chatSessionMapper.updateById(session);
 
