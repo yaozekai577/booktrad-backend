@@ -134,9 +134,6 @@ public class AiAssistantServiceImpl implements AiAssistantService {
     }
     
     /**
-     * 判断用户消息是否是书籍查询意图
-     */
-    /**
      * 判断是否是书籍查询意图
      * 使用AI来智能判断用户意图
      */
@@ -149,10 +146,9 @@ public class AiAssistantServiceImpl implements AiAssistantService {
         
         // 1. 明确的书籍查询关键词（高优先级）
         String[] explicitBookKeywords = {
-            "找书", "推荐书", "买书", "卖书", "书籍推荐",
-            "有什么书", "哪些书", "什么书", "书单",
-            "想买", "想要", "需要", "寻找", "搜索",
-            "有没有", "找一本", "哪里有"
+            "找书", "买书",
+            "想买", "想要", "需要", "寻找",
+            "有没有"
         };
         
         for (String keyword : explicitBookKeywords) {
@@ -165,7 +161,9 @@ public class AiAssistantServiceImpl implements AiAssistantService {
         String[] knowledgeKeywords = {
             "是什么", "什么是", "怎么", "如何", "为什么",
             "介绍", "解释", "讲解", "原理", "概念",
-            "学习", "教程", "入门", "基础", "知识"
+            "学习", "教程", "入门", "基础", "知识",
+            "注意事项", "注意什么", "哪些", "流程", "建议",
+            "指南", "攻略", "避坑","推荐"
         };
         
         for (String keyword : knowledgeKeywords) {
@@ -223,9 +221,6 @@ public class AiAssistantServiceImpl implements AiAssistantService {
         return false;
     }
     
-    /**
-     * 生成包含书籍信息的回复
-     */
     /**
      * 生成书籍查询回复（热情友好版）
      */
