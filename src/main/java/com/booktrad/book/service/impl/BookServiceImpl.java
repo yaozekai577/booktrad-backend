@@ -36,6 +36,12 @@ public class BookServiceImpl implements BookService {
     @Autowired
     private BookMapper bookMapper;
 
+    @Autowired
+    private com.booktrad.user.mapper.UserMapper userMapper;
+
+    @Autowired
+    private com.booktrad.order.mapper.OrderMapper orderMapper;
+
     @Override
     public BookVO getBookDetail(Long id) {
         // 1. 查询书籍详情
@@ -71,6 +77,102 @@ public class BookServiceImpl implements BookService {
         this.setDescriptions(bookVO);
 
         return bookVO;
+    }
+
+    @Override
+    public com.booktrad.book.vo.AdminDashboardStatsVO getAdminDashboardStats(Integer days) {
+        com.booktrad.book.vo.AdminDashboardStatsVO stats = new com.booktrad.book.vo.AdminDashboardStatsVO();
+        
+        // 默认7天
+        if (days == null || days <= 0) {
+            days = 7;
+        }
+
+        // 1. 基础统计
+        // 总用户数 (使用手写SQL)
+        Integer totalUsers = userMapper.countTotalUsers();
+        stats.setTotalUsers(totalUsers != null ? totalUsers : 0);
+
+        // 总书籍数 (使用手写SQL)
+        Integer totalBooks = bookMapper.countTotalBooks();
+        stats.setTotalBooks(totalBooks != null ? totalBooks : 0);
+
+        // 总订单数
+        Long totalOrders = orderMapper.selectCount(null);
+        stats.setTotalOrders(totalOrders != null ? totalOrders.intValue() : 0);
+
+        // 总交易额 (统计已完成订单 status=3 的价格总和)
+        // 使用 QueryWrapper 无法直接 sum，这里简单处理，或者在 XML 加个 sum 方法
+        // 简单处理：查询所有已完成订单并累加 (量大时建议优化为 SQL)
+        List<com.booktrad.order.entity.BookOrder> completedOrders = orderMapper.selectList(
+            new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.booktrad.order.entity.BookOrder>()
+                .eq(com.booktrad.order.entity.BookOrder::getStatus, 3)
+        );
+        java.math.BigDecimal totalAmount = java.math.BigDecimal.ZERO;
+        if (completedOrders != null) {
+            for (com.booktrad.order.entity.BookOrder order : completedOrders) {
+                if (order.getPrice() != null) {
+                    totalAmount = totalAmount.add(order.getPrice());
+                }
+            }
+        }
+        stats.setTotalTransactionAmount(totalAmount);
+
+        // 2. 书籍状态分布
+        // 1-在售 2-已下架 3-交易中 4-已售出
+        List<java.util.Map<String, Object>> bookStatusList = bookMapper.countBookStatusDistribution();
+        java.util.Map<String, Integer> bookStatusMap = new java.util.HashMap<>();
+        // 初始化
+        bookStatusMap.put("在售", 0);
+        bookStatusMap.put("已下架", 0);
+        bookStatusMap.put("交易中", 0);
+        bookStatusMap.put("已售出", 0);
+
+        if (bookStatusList != null) {
+            for (java.util.Map<String, Object> map : bookStatusList) {
+                Integer status = ((Number) map.get("status")).intValue();
+                Integer count = ((Number) map.get("count")).intValue();
+                switch (status) {
+                    case 1: bookStatusMap.put("在售", count); break;
+                    case 2: bookStatusMap.put("已下架", count); break;
+                    case 3: bookStatusMap.put("交易中", count); break;
+                    case 4: bookStatusMap.put("已售出", count); break;
+                }
+            }
+        }
+        stats.setBookStatusDistribution(bookStatusMap);
+
+        // 3. 订单状态分布
+        // 1-待确认 2-进行中(已确认) 3-已完成 4-已取消
+        List<java.util.Map<String, Object>> orderStatusList = orderMapper.countOrderStatusDistribution();
+        java.util.Map<String, Integer> orderStatusMap = new java.util.HashMap<>();
+        orderStatusMap.put("待确认", 0);
+        orderStatusMap.put("进行中", 0);
+        orderStatusMap.put("已完成", 0);
+        orderStatusMap.put("已取消", 0);
+
+        if (orderStatusList != null) {
+            for (java.util.Map<String, Object> map : orderStatusList) {
+                Integer status = ((Number) map.get("status")).intValue();
+                Integer count = ((Number) map.get("count")).intValue();
+                switch (status) {
+                    case 1: orderStatusMap.put("待确认", count); break;
+                    case 2: orderStatusMap.put("进行中", count); break;
+                    case 3: orderStatusMap.put("已完成", count); break;
+                    case 4: orderStatusMap.put("已取消", count); break;
+                }
+            }
+        }
+        stats.setOrderStatusDistribution(orderStatusMap);
+
+        // 4. 最近N天趋势
+        // 获取过去N天的日期列表
+        // SQL 逻辑: SELECT DATE(created_at) as date, COUNT(*) as count FROM table WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL N DAY) GROUP BY date
+        stats.setDailyNewBooks(bookMapper.selectDailyNewBooks(days));
+        stats.setDailyNewOrders(orderMapper.selectDailyNewOrders(days));
+        stats.setDailyNewUsers(userMapper.selectDailyNewUsers(days));
+
+        return stats;
     }
 
     @Override

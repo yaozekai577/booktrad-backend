@@ -233,4 +233,20 @@ public class BookController {
         }
     }
 
+    /**
+     * 管理员获取仪表盘统计数据
+     * @param days 统计天数，默认7天
+     * @return 统计数据VO
+     */
+    @GetMapping("/admin/dashboard/stats")
+    public Result<com.booktrad.book.vo.AdminDashboardStatsVO> getAdminDashboardStats(
+            @RequestParam(required = false, defaultValue = "7") Integer days) {
+        try {
+            // TODO: 权限校验
+            return Result.success(bookService.getAdminDashboardStats(days));
+        } catch (Exception e) {
+            return Result.error("获取统计数据失败：" + e.getMessage());
+        }
+    }
+
 }

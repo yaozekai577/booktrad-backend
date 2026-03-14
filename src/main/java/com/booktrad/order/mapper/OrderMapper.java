@@ -66,4 +66,17 @@ public interface OrderMapper extends BaseMapper<BookOrder> {
         com.baomidou.mybatisplus.core.metadata.IPage<OrderVO> page, 
         @Param("orderNo") String orderNo
     );
+
+    /**
+     * 统计订单状态分布
+     * @return 状态和数量的列表
+     */
+    List<java.util.Map<String, Object>> countOrderStatusDistribution();
+
+    /**
+     * 统计每日新增订单（过去N天）
+     * @param days 天数
+     * @return 日期和数量的列表
+     */
+    List<java.util.Map<String, Object>> selectDailyNewOrders(@Param("days") Integer days);
 }

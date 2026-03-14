@@ -104,4 +104,10 @@ public interface BookService {
      */
     java.util.List<BookPageVO> getRelatedBooks(Long bookId, Integer limit);
 
+    /**
+     * 获取管理员仪表盘统计数据
+     * @param days 统计天数
+     * @return 统计数据VO
+     */
+    com.booktrad.book.vo.AdminDashboardStatsVO getAdminDashboardStats(Integer days);
 }

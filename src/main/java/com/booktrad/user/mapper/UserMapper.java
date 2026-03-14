@@ -130,4 +130,16 @@ public interface UserMapper extends BaseMapper<User> {
      * @param banReason 封禁原因
      */
     void updateUserBanStatus(@Param("userId") Long userId, @Param("status") Integer status, @Param("banReason") String banReason);
+
+    /**
+     * 统计每日新增用户（过去N天）
+     * @param days 天数
+     * @return 日期和数量的列表
+     */
+    List<Map<String, Object>> selectDailyNewUsers(@Param("days") Integer days);
+    /**
+     * 统计总用户数
+     * @return 用户总数
+     */
+    Integer countTotalUsers();
 }

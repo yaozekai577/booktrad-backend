@@ -354,4 +354,31 @@
         ORDER BY created_at DESC
     </select>
 
+    <!-- 统计书籍状态分布 -->
+    <select id="countBookStatusDistribution" resultType="java.util.Map">
+        SELECT status, COUNT(*) as count
+        FROM book
+        WHERE deleted_at IS NULL
+        GROUP BY status
+    </select>
+
+    <!-- 统计每日新增书籍 -->
+    <select id="selectDailyNewBooks" resultType="java.util.Map">
+        SELECT
+            DATE_FORMAT(created_at, '%Y-%m-%d') AS date,
+            COUNT(*) AS count
+        FROM book
+        WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL #{days} DAY)
+        AND deleted_at IS NULL
+        GROUP BY date
+        ORDER BY date
+    </select>
+
+    <!-- 统计总书籍数 -->
+    <select id="countTotalBooks" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM book
+        WHERE deleted_at IS NULL
+    </select>
+
 </mapper>

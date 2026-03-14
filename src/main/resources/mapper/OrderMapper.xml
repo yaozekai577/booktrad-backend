@@ -257,4 +257,23 @@
         ORDER BY o.created_at DESC
     </select>
 
+    <!-- 统计订单状态分布 -->
+    <select id="countOrderStatusDistribution" resultType="java.util.Map">
+        SELECT status, COUNT(*) as count
+        FROM book_order
+        WHERE status IS NOT NULL
+        GROUP BY status
+    </select>
+
+    <!-- 统计每日新增订单 -->
+    <select id="selectDailyNewOrders" resultType="java.util.Map">
+        SELECT
+            DATE_FORMAT(created_at, '%Y-%m-%d') AS date,
+            COUNT(*) AS count
+        FROM book_order
+        WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL #{days} DAY)
+        GROUP BY date
+        ORDER BY date
+    </select>
+
 </mapper>

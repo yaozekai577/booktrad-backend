@@ -147,4 +147,22 @@ public interface BookMapper extends BaseMapper<Book> {
 
     java.util.List<Book> selectSellerOnSaleBooksForSupply(@Param("sellerId") Long sellerId);
 
+    /**
+     * 统计书籍状态分布
+     * @return 状态和数量的列表
+     */
+    java.util.List<java.util.Map<String, Object>> countBookStatusDistribution();
+
+    /**
+     * 统计每日新增书籍（过去N天）
+     * @param days 天数
+     * @return 日期和数量的列表
+     */
+    java.util.List<java.util.Map<String, Object>> selectDailyNewBooks(@Param("days") Integer days);
+
+    /**
+     * 统计总书籍数
+     * @return 书籍总数
+     */
+    Integer countTotalBooks();
 }
