@@ -5,6 +5,7 @@ import com.booktrad.common.result.Result;
 import com.booktrad.user.dto.ChangePasswordDTO;
 import com.booktrad.user.dto.LoginDTO;
 import com.booktrad.user.dto.RegisterDTO;
+import com.booktrad.user.dto.UpdateUserInfoDTO;
 import com.booktrad.user.entity.User;
 import com.booktrad.user.service.UserService;
 import com.booktrad.user.vo.LoginVO;
@@ -224,6 +225,33 @@ public class UserController {
             return Result.success("更新状态成功");
         } catch (Exception e) {
             return Result.error("更新状态失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 更新用户信息（邮箱和电话）
+     * @param updateUserInfoDTO 更新用户信息DTO
+     * @return 统一返回格式
+     */
+    @PutMapping("/update-info")
+    public Result<String> updateUserInfo(@RequestBody UpdateUserInfoDTO updateUserInfoDTO) {
+        try {
+            // 从上下文中获取当前登录用户ID
+            Long userId = UserContext.getUserId();
+            if (userId == null) {
+                return Result.error(401, "用户未登录");
+            }
+
+            // 调用Service层更新用户信息
+            userService.updateUserInfo(userId, updateUserInfoDTO.getEmail(), updateUserInfoDTO.getPhone());
+
+            // 返回成功响应
+            return Result.success("用户信息更新成功");
+        } catch (RuntimeException e) {
+            // 更新失败，返回错误信息
+            return Result.error(e.getMessage());
+        } catch (Exception e) {
+            return Result.error("服务器内部错误：" + e.getMessage());
         }
     }
 }

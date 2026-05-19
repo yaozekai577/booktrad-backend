@@ -79,4 +79,12 @@ public interface UserService extends IService<User> {
      * @param reason 封禁原因（仅当封禁时需要）
      */
     void updateUserStatus(Long userId, Integer status, String reason);
+
+    /**
+     * 更新用户信息（邮箱和电话）
+     * @param userId 用户ID
+     * @param email 邮箱地址
+     * @param phone 电话号码
+     */
+    void updateUserInfo(Long userId, String email, String phone);
 }

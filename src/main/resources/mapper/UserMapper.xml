@@ -204,6 +204,16 @@
         WHERE id = #{userId}
     </update>
 
+    <!-- 更新用户信息（邮箱和电话） -->
+    <update id="updateUserInfo">
+        UPDATE user
+        SET email = #{email},
+            phone = #{phone},
+            updated_at = NOW()
+        WHERE id = #{userId}
+          AND deleted_at IS NULL
+    </update>
+
     <!-- 统计每日新增用户 -->
     <select id="selectDailyNewUsers" resultType="java.util.Map">
         SELECT

@@ -317,4 +317,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String banReason = (status == 0) ? reason : null;
         userMapper.updateUserBanStatus(userId, status, banReason);
     }
+
+    /**
+     * 更新用户信息（邮箱和电话）
+     * @param userId 用户ID
+     * @param email 邮箱地址
+     * @param phone 电话号码
+     */
+    @Override
+    public void updateUserInfo(Long userId, String email, String phone) {
+        log.info("更新用户信息，userId: {}, email: {}, phone: {}", userId, email, phone);
+        
+        // 1. 查询用户是否存在
+        User user = userMapper.selectUserEntityById(userId);
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+        
+        // 2. 使用手写SQL更新邮箱和电话（不依赖MyBatis-Plus的updateById）
+        int result = userMapper.updateUserInfo(userId, email, phone);
+        if (result <= 0) {
+            throw new RuntimeException("更新用户信息失败");
+        }
+        
+        log.info("用户信息更新成功，userId: {}", userId);
+    }
 }

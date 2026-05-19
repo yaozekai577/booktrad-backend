@@ -132,6 +132,15 @@ public interface UserMapper extends BaseMapper<User> {
     void updateUserBanStatus(@Param("userId") Long userId, @Param("status") Integer status, @Param("banReason") String banReason);
 
     /**
+     * 更新用户信息（邮箱和电话）
+     * @param userId 用户ID
+     * @param email 邮箱地址
+     * @param phone 电话号码
+     * @return 影响行数
+     */
+    int updateUserInfo(@Param("userId") Long userId, @Param("email") String email, @Param("phone") String phone);
+
+    /**
      * 统计每日新增用户（过去N天）
      * @param days 天数
      * @return 日期和数量的列表
