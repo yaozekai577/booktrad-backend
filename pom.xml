@@ -8,24 +8,11 @@
         <version>3.2.5</version>
         <relativePath/>
     </parent>
-    <groupId>com.heima</groupId>
+    <groupId>com.booktrad</groupId>
     <artifactId>booktrad</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>booktrad</name>
-    <description>booktrad</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
+    <description>BookTrad 校园二手书交易平台后端</description>
     <properties>
         <java.version>17</java.version>
     </properties>
