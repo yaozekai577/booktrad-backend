@@ -36,9 +36,12 @@ oss:
   # OSS服务端点，例如：oss-cn-hangzhou.aliyuncs.com
   endpoint: oss-cn-hangzhou.aliyuncs.com
   # 阿里云访问密钥ID
-  access-key-id: ${OSS_ACCESS_KEY_ID:}
+  # 注意：默认值不可留空。OSS 客户端在应用启动时构建，空字符串会抛
+  # InvalidCredentialsException 导致整个应用启动失败。未配置时用占位值，
+  # 应用可正常启动，仅在调用 OSS 上传时报鉴权错误。
+  access-key-id: ${OSS_ACCESS_KEY_ID:not-configured}
   # 阿里云访问密钥Secret
-  access-key-secret: ${OSS_ACCESS_KEY_SECRET:}
+  access-key-secret: ${OSS_ACCESS_KEY_SECRET:not-configured}
   # OSS存储空间名称
   bucket-name: web-yzk
   # OSS存储空间所在区域
