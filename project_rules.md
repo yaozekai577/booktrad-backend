@@ -1,437 +1,332 @@
-# Sky-Take-Out 项目开发规则
+# BookTrad 开发规范
 
-## 1. 项目架构与模块划分
+> 校园二手书交易平台 · 后端开发规范
+> 适用模块：`com.booktrad` 下全部功能包
+> 维护人：yaozekai
 
-### 1.1 模块划分原则
-- 按业务功能模块化，每个功能包内部包含完整的3层架构
-- 三层架构：Controller → Service → Mapper
-- 高内聚低耦合：相关功能代码集中在同一包下
-- 公共组件独立封装，供所有功能包使用
-- 禁止跨层调用
-- 禁止功能包间直接访问Mapper
+---
 
-### 1.2 包结构规范
-以下仅仅只是包结构的示例
+## 1. 项目概览
+
+### 1.1 定位
+
+面向高校场景的二手书籍交易平台后端，覆盖「发布 → 求购匹配 → 下单 → 双方确认交易 → 评价」的完整闭环，并提供即时聊天与 AI 助手两类增强能力。
+
+### 1.2 技术栈
+
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| Spring Boot | 3.2.5 | 核心框架 |
+| Java | 17 | 开发语言 |
+| MyBatis Plus | 3.5.7 | ORM 框架（显式引入 mybatis-spring 3.0.3） |
+| MySQL | 8.0+ | 关系型数据库 |
+| Redis | 6.0+ | 缓存与会话 |
+| jjwt | 0.12.5 | JWT 签发与校验 |
+| spring-security-crypto | — | 密码 BCrypt 加密 |
+| spring-boot-starter-websocket | — | 即时聊天长连接 |
+| 阿里云 OSS SDK | 3.17.1 | 书籍封面图存储 |
+| dashscope-sdk-java | 2.12.0 | 通义千问大模型调用 |
+| OkHttp | 4.12.0 | 调用 Google Books API |
+| Guava | 32.1.3-jre | dashscope-sdk 传递依赖，版本锁定 |
+| Lombok | — | 样板代码简化 |
+
+### 1.3 数据表
+
+| 表名 | 说明 |
+|------|------|
+| `user` | 用户 |
+| `book` | 书籍（含软删除 `deleted_at`、封禁标记 `is_banned`） |
+| `book_category` | 书籍分类 |
+| `book_favorite` | 收藏 |
+| `book_order` | 订单 |
+| `order_review` | 订单评价 |
+| `wanted_request` | 求购信息 |
+| `chat_session` / `chat_message` | 聊天会话与消息 |
+| `ai_chat_session` / `ai_chat_message` | AI 助手会话与消息 |
+| `search_history` | 搜索历史 |
+
+---
+
+## 2. 包结构
+
+### 2.1 顶层划分
+
+```
 com.booktrad
-├── common             # 公共组件包
-│   ├── constant       # 全局常量
-│   ├── context        # 上下文工具
-│   ├── exception      # 全局异常类
-│   ├── json           # JSON处理
-│   ├── properties     # 配置属性
-│   ├── result         # 统一结果封装
-│   └── utils          # 工具类
-├── config             # 配置包
-│   ├── WebMvcConfig.java
-│   ├── RedisConfig.java
-│   ├── JwtConfig.java
-│   └── WebSocketConfig.java
-├── interceptor        # 拦截器包
-│   ├── JwtTokenAdminInterceptor.java
-│   └── JwtTokenUserInterceptor.java
-├── aspect             # 切面包
-│   └── AutoFillAspect.java
-├── handler            # 处理器包
-│   └── GlobalExceptionHandler.java
-├── task               # 定时任务包
-│   └── OrderTask.java
-├── websocket          # WebSocket包
-│   └── WebSocketServer.java
-├── admin              # 管理员管理功能包
-│   ├── controller     # 控制器层
-│   ├── service        # 服务层接口
-│   ├── service.impl   # 服务层实现
-│   ├── mapper         # 数据访问层
-│   ├── dto            # 数据传输对象
-│   ├── entity         # 数据库实体
-│   └── vo             # 视图对象
-├── user               # 用户管理功能包
-│   ├── controller
-│   ├── service
-│   ├── service.impl
-│   ├── mapper
-│   ├── dto
-│   ├── entity
-│   └── vo
-├── book               # 书籍管理功能包
-│   ├── controller
-│   ├── service
-│   ├── service.impl
-│   ├── mapper
-│   ├── dto
-│   ├── entity
-│   └── vo
-├── order              # 订单管理功能包
-│   ├── controller
-│   ├── service
-│   ├── service.impl
-│   ├── mapper
-│   ├── dto
-│   ├── entity
-│   └── vo
-├── category           # 书籍分类功能包
-│   ├── controller
-│   ├── service
-│   ├── service.impl
-│   ├── mapper
-│   ├── dto
-│   ├── entity
-│   └── vo
-├── shoppingcart       # 购物车功能包
-│   ├── controller
-│   ├── service
-│   ├── service.impl
-│   ├── mapper
-│   ├── dto
-│   ├── entity
-│   └── vo
-├── addressbook        # 地址簿功能包
-│   ├── controller
-│   ├── service
-│   ├── service.impl
-│   ├── mapper
-│   ├── dto
-│   ├── entity
-│   └── vo
-├── comment            # 评论管理功能包
-│   ├── controller
-│   ├── service
-│   ├── service.impl
-│   ├── mapper
-│   ├── dto
-│   ├── entity
-│   └── vo
-└── favorite           # 收藏管理功能包
-    ├── controller
-    ├── service
-    ├── service.impl
-    ├── mapper
-    ├── dto
-    ├── entity
-    └── vo
+├── BooktradApplication          # 启动类
+├── ai/                          # AI 助手、自然语言检索、图书信息补全
+├── book/                        # 书籍管理、搜索历史、文件上传
+├── chat/                        # 即时聊天（含 websocket 子包）
+├── common/                      # 公共组件
+│   ├── context                  # UserContext：ThreadLocal 持有当前用户
+│   ├── result                   # Result：统一响应封装
+│   └── utils                    # JwtUtil 等工具类
+├── config/                      # 全局配置
+├── favorite/                    # 收藏
+├── interceptor/                 # JwtLoginInterceptor
+├── order/                       # 订单与评价
+├── user/                        # 用户
+└── wanted/                      # 求购
 ```
 
-### 1.3 功能包命名规范
-- 按业务功能命名，使用小写单数形式
-- 示例：admin（管理员管理）、user（用户管理）、book（书籍管理）、order（订单管理）
-- 禁止使用缩写或拼音
+### 2.2 功能包内部结构
 
-### 1.4 功能包内部结构要求
-- 每个功能包必须包含完整的三层架构
-- 功能包内可以包含自己的常量、枚举、异常等
-- 优先使用公共包的组件，避免重复开发
-- 功能包间通过Service接口进行调用，禁止直接访问Mapper
+除 `favorite`（无 dto，入参直接使用实体）外，每个功能包统一为：
 
-### 1.5 公共包使用原则
-- 公共包只包含所有功能包共享的组件
-- 公共包禁止依赖任何功能包
-- 公共组件必须经过充分测试，确保稳定性
-- 公共组件的修改必须经过严格审查
+```
+{module}
+├── controller        # 仅做参数接收与结果封装
+├── service           # 接口
+├── service/impl      # 实现，业务逻辑与事务边界所在
+├── mapper            # 数据访问接口（继承 MyBatis Plus BaseMapper）
+├── dto               # 入参对象
+├── entity            # 数据库实体
+└── vo                # 出参对象
+```
 
-## 2. 代码规范
+`chat` 额外包含 `websocket` 子包，存放 `ChatWebSocketHandler` 与 `WebSocketEvent`。
 
-### 2.1 Java代码规范
-- 遵循阿里巴巴Java开发手册
-- Lombok：@Data（实体/DTO/VO），@Slf4j（服务类）
-- 方法参数≤5个，超则用DTO
-- 访问权限最小化
-- 禁止魔法值
-- 集合初始化指定容量
-- 空指针检查：Optional优先
-- 资源关闭：try-with-resources
+### 2.3 全局配置类
 
-### 2.2 代码风格
-- 缩进：4空格
-- 行宽：≤120字符
-- 大括号：换行风格
-- 空行：类成员与方法、方法间、逻辑块间空一行
-- 变量：局部变量用前声明，成员变量在类顶
-- 空格：二元运算符两侧、逗号/分号后有空格
+| 类 | 职责 |
+|---|---|
+| `WebMvcConfig` | CORS、拦截器注册、`/upload/**` 静态资源映射 |
+| `WebSocketConfig` | 注册 `/ws/chat` 端点 |
+| `OssConfig` | 初始化 OSS 客户端 Bean |
+| `MyMetaObjectHandler` | MyBatis Plus 自动填充 `createdAt` / `updatedAt` |
+| `CryptoConfig` | 暴露 BCrypt 编码器 Bean |
 
-### 2.3 注释规范
-- 语言：中文
-- 类注释：Javadoc（功能、作者、创建时间）
-- 方法注释：Javadoc（功能、参数、返回值、异常）
-- 代码注释：复杂逻辑、业务含义不明确处加注释
-- 注释与代码同步
+### 2.4 依赖方向约束
 
-### 2.4 IDE配置
-- 强制使用：IntelliJ IDEA
-- 代码格式化：.editorconfig
-- 自动导入：开启
-- 代码检查：开启
+```
+controller ──▶ service ──▶ mapper ──▶ entity
+                 │
+                 └──▶ common（result / context / utils）
+```
 
-## 3. 命名规则
+- 禁止 controller 直接调用 mapper
+- 禁止跨功能包直接访问 mapper，跨模块取数一律走对方的 service
+- `common` 不得依赖任何功能包
+- `entity` / `dto` / `vo` 只允许依赖 `common` 与第三方库
 
-### 3.1 包命名
-- 格式：全小写，点分隔，反向域名+项目+功能
-- 示例：com.sky.controller.admin
-- 禁止：拼音/缩写/单个字母
+---
 
-### 3.2 类命名
-- 大驼峰
-- 后缀规范：Controller/Service/ServiceImpl/Mapper/DTO/VO/Exception/Enum/Config/Util
-- 示例：EmployeeController、EmployeeServiceImpl
+## 3. 命名规范
 
-### 3.3 方法命名
-- 小驼峰，动词+名词
-- 前缀规范：
-  - 查询：get/find/list/query/page
-  - 保存：save/insert
-  - 更新：update/modify
-  - 删除：delete/remove/batchDelete
-  - 启用：enable/disable
-  - 统计：count/sum
-  - 登录：login/logout
-  - 校验：validate/check
+### 3.1 Java
 
-### 3.4 变量命名
-- 小驼峰，见名知意
-- 禁止：拼音/单个字母（循环变量除外）
-- 布尔：is/has前缀
-- 集合/数组：复数形式
+| 对象 | 规则 | 示例 |
+|---|---|---|
+| 包 | 全小写，业务单词单数 | `com.booktrad.wanted` |
+| 类 | 大驼峰 + 类型后缀 | `WantedRequestController` |
+| 方法 | 小驼峰，动词前缀 | `pageBooks`、`publishBook`、`confirmTrade` |
+| 变量 | 小驼峰，见名知意 | `sellerId`、`bookCondition` |
+| 常量 | 全大写下划线 | `MAX_UPLOAD_SIZE` |
+| 布尔 | `is` / `has` 前缀 | `isBanned` |
 
-### 3.5 常量与枚举
-- 常量：全大写，下划线分隔
-- 枚举：类名大驼峰+Enum，值全大写
+类型后缀固定为：`Controller` / `Service` / `ServiceImpl` / `Mapper` / `DTO` / `VO` / `Config` / `Util` / `Handler` / `Interceptor`。
 
-### 3.6 配置文件命名
-- Spring Boot：application-环境.yml
-- MyBatis：Mapper接口同名.xml
-- 日志：logback-spring.xml
+禁止拼音命名、单字母命名（循环变量除外）、无意义缩写。
 
-### 3.7 其他命名
-- 数据库表/字段：全小写，下划线分隔
-- Redis键：冒号分隔
-- WebSocket消息：大驼峰/全大写
+### 3.2 数据库
 
-## 4. 数据库设计规范
+- 表名、字段名：全小写下划线，见名知意，禁止拼音与保留字
+- 主键统一 `id`，`BIGINT` 自增
+- 金额统一 `DECIMAL(10,2)`，禁止浮点类型
+- 状态类字段统一 `TINYINT`
+- 索引命名：`idx_字段名`、`uk_字段名`、`idx_字段1_字段2`
 
-### 4.1 表命名
-- 全小写，下划线分隔，见名知意
-- 关联表：两表名下划线分隔
-- 禁止：拼音/关键字
+> 时间字段现状：主流表使用 `created_at` / `updated_at`（与 `MyMetaObjectHandler` 的填充字段一致），少数早期表使用 `create_time` / `update_time`。**新表一律用 `created_at` / `updated_at`**，历史表在后续迭代中逐步统一。
 
-### 4.2 字段命名
-- 全小写，下划线分隔
-- 主键：id（BIGINT，自增）
-- 通用字段：create_time/update_time/create_user/update_user
-- 状态：status（TINYINT，0禁用1启用）
-- 时间：DATETIME
-- 金额：DECIMAL(10,2)
+---
 
-### 4.3 索引规范
-- 命名：uk_字段名（唯一），idx_字段名（普通），idx_字段1_字段2（复合）
-- 原则：查询条件、外键、ORDER BY/GROUP BY字段建索引
-- 单个表索引≤6个
-- 避免频繁更新字段/低选择性字段建索引
+## 4. 接口规范
 
-### 4.4 SQL规范
-- 编写位置：MyBatis XML
-- SELECT：禁止*，明确字段
-- WHERE：禁止索引字段函数操作，禁止!=，禁止OR
-- JOIN：≤3表，优先INNER JOIN
-- 批量操作：foreach，≤1000条
-- 分页：LIMIT，禁止OFFSET大分页，必须ORDER BY
+### 4.1 路径前缀
 
-### 4.5 注释规范
-- 表/字段必须有COMMENT
-- 复杂SQL加注释
+| 前缀 | 用途 |
+|---|---|
+| `/api/auth/**` | 登录、注册、卖家信息 |
+| `/api/book/**`、`/api/order/**`、`/api/wanted/**`、`/api/favorite/**`、`/api/review/**`、`/api/ai/**`、`/api/upload/**` | 各业务模块 |
+| `/ws/chat` | WebSocket 聊天端点 |
+| `/upload/**` | 上传文件的静态访问路径 |
 
-## 5. 安全规范
+路径使用名词、小写、连字符分隔。版本号不引入（当前为个人项目单版本）。
 
-### 5.1 认证与授权
-- JWT认证，区分admin/user密钥
-- 拦截器：JwtTokenAdminInterceptor/JwtTokenUserInterceptor
-- 敏感操作权限校验
-- Token：2小时过期，含用户ID/角色，无敏感信息
+### 4.2 统一响应
 
-### 5.2 数据安全
-- 密码：BCrypt/Argon2加密，加盐
-- 敏感数据脱敏：手机号138****1234
-- 日志：无敏感信息，生产环境无DEBUG
+所有接口返回 `com.booktrad.common.result.Result<T>`：
 
-### 5.3 接口安全
-- 参数校验：Spring Validation
-- 防止注入：#{}占位符，HTML转义
-- 接口限流：Redis/Guava RateLimiter
-- 文件上传：限制类型/大小，安全位置，重命名
-
-### 5.4 其他安全
-- 依赖：定期检查漏洞，更新
-- 生产环境：关闭Swagger/调试模式，HTTPS
-- 数据库：强密码，非root用户，SSL加密
-
-## 6. API设计规范
-
-### 6.1 RESTful API设计
-- HTTP方法：GET查询，POST创建，PUT更新，DELETE删除，PATCH部分更新
-- 资源：名词复数，小写，连字符分隔
-- 路径参数：{id}，必须校验
-- 查询参数：过滤、排序、字段选择
-
-### 6.2 接口版本控制
-- URL中加版本号：v1
-- 不兼容变更升版本，旧版本保留≥6个月
-
-### 6.3 响应格式规范
 ```json
 {
-  "code": 1,        // 1成功，0失败，其他业务错误码
-  "msg": "操作成功", // 响应消息
-  "data": {}        // 响应数据
+  "code": 1,
+  "msg": "操作成功",
+  "data": {}
 }
 ```
 
-### 6.4 分页查询规范
-- 请求：page（默认1），pageSize（默认10，最大100）
-- 响应：total+records+page+pageSize
+- `code = 1`：成功
+- `code = 0`：业务失败
+- `code = 401`：登录失效，前端拦截器统一处理跳转登录页
 
-### 6.5 API文档规范
-- Swagger/knife4j，开发环境/doc.html
-- 生产环境关闭
+新增接口一律通过 `Result.success(...)` / `Result.error(...)` 构造，**禁止**直接返回裸对象或自定义 Map。
 
-### 6.6 接口命名规范
-- 后台：/admin前缀
-- 用户端：/user前缀
-- 公共：/api前缀
-- WebSocket：/ws前缀
+### 4.3 分页
 
-## 7. 异常处理规范
+统一使用 MyBatis Plus 的 `IPage`：
 
-### 7.1 异常分类
-- 业务异常：BaseException子类，可预见业务错误
-- 系统异常：Spring/Java内置异常，不可预见错误
-- 参数校验异常：Validation框架异常
+- 入参：`pageNum`（默认 1）、`pageSize`（默认 10，上限 100）
+- 出参：`IPage<XxxVO>`，配合各模块的 `XxxPageVO`
+- 禁止手写 `LIMIT offset` 实现分页
 
-### 7.2 异常处理
-- @ControllerAdvice+@ExceptionHandler统一处理
-- 异常日志：INFO（业务），ERROR（系统，含堆栈），WARN（参数）
-- 响应：统一Result格式
+### 4.4 DTO / VO 使用
 
-### 7.3 异常抛出原则
-- 明确类型，信息具体
-- 不吞噬异常，至少记日志
-- 不滥用异常，用于控制流程
-- 无法处理则向上传递
+- 入参一律用 `DTO`，**禁止**直接用 `entity` 接收请求体
+- 出参一律用 `VO`，**禁止**直接把 `entity` 返回给前端（避免 `password` 等敏感字段外泄）
 
-### 7.4 自定义异常规范
-- 命名：Exception结尾
-- 继承：BaseException
-- 构造方法：无参、带消息、带消息+cause
+---
 
-## 8. 日志规范
+## 5. 认证与安全
 
-### 8.1 日志框架
-- SLF4J+Logback
-- 禁止直接使用Log4j/Log4j2/JUL
-- @Slf4j注解
+### 5.1 认证流程
 
-### 8.2 日志使用规范
-- 格式：log.info("描述：{}", 参数)，禁止字符串拼接
-- 内容：清晰，含上下文，无敏感信息
-- 循环：每1000条打一次日志
-- 请求日志：方法+URL+参数+状态+响应时间
+1. 登录成功后由 `JwtUtil` 签发 JWT，前端存入 `localStorage`
+2. 前端以 `Authorization: Bearer {token}` 携带
+3. `JwtLoginInterceptor` 拦截 `/**` 并解析 token，写入 `UserContext`
+4. 业务层通过 `UserContext.getUserId()` 获取当前用户
 
-### 8.3 日志级别规范
-- DEBUG：开发环境调试，生产关闭
-- INFO：正常业务流程
-- WARN：警告（参数校验失败等）
-- ERROR：错误（系统异常等，含堆栈）
+**放行清单**（`WebMvcConfig.addInterceptors` 中维护）：
 
-### 8.4 日志配置规范
-- 配置文件：logback-spring.xml
-- 输出：控制台（开发）+文件（所有环境）
-- 文件：application-环境-年月日.log，按天滚动，保留7天，≤100MB
-- 脱敏：敏感信息处理
+```
+/api/auth/login
+/api/auth/register
+/api/auth/seller/**
+/api/wanted/page
+```
 
-## 9. 测试规范
+新增免登录接口必须同步更新该清单，并在 code review 时说明放行理由。
 
-### 9.1 测试类型
-- 单元测试：单个方法/类，隔离，快
-- 集成测试：多模块交互，依赖外部资源
-- 接口测试：API正确性，HTTP模拟
-- 端到端测试：全流程测试
+`UserContext` 使用 `ThreadLocal` 存储，**必须在请求结束时调用 `clear()`**，否则线程池复用会导致用户身份串号与内存泄漏。
 
-### 9.2 测试覆盖
-- 核心业务≥80%，工具类/服务层=100%，控制器≥80%
-- 覆盖：正常/异常/边界/并发场景
+### 5.2 密码与敏感数据
 
-### 9.3 测试框架与工具
-- 单元：JUnit 5+Mockito
-- 集成：Spring Boot Test
-- 接口：Postman/Newman/REST Assured
-- 报告：Jacoco+Allure
-- CI/CD：Jenkins+Maven/Gradle
+- 密码一律 BCrypt 加密存储，禁止明文或 MD5
+- 任何接口不得返回 `password` 字段
+- 日志中禁止打印密码、token、手机号完整值
 
-### 9.4 测试规范
-- 测试类：被测试类名+Test
-- 测试方法：test方法名_场景_预期结果
-- 数据：随机，与代码分离，测试后清理
-- Mock：外部依赖模拟
-- 断言：JUnit 5 Assertions
+### 5.3 配置与密钥
 
-### 9.5 测试执行
-- 开发：提交前运行单元测试
-- 集成：合并前运行集成测试
-- 发布：运行所有测试，覆盖率达标
+**这条是硬性要求：**
 
-## 10. 部署规范
+- 数据库密码、Redis 密码、OSS AccessKey、dashscope API Key 等一律通过**环境变量**注入，`application.yaml` 中只允许出现占位符：
 
-### 10.1 环境分离
-- 环境：DEV（开发）、TEST（测试）、UAT（预发布）、PROD（生产）
-- 隔离：物理/网络隔离，中间件分离
+```yaml
+oss:
+  access-key-id: ${OSS_ACCESS_KEY_ID:}
+  access-key-secret: ${OSS_ACCESS_KEY_SECRET:}
+```
 
-### 10.2 配置分离
-- 多环境配置：application-环境.yml
-- 敏感配置：环境变量/配置中心/加密文件
-- 优先级：命令行>环境变量>配置文件>默认值
+- `.env` 与任何含真实凭据的本地配置文件**必须**写入 `.gitignore`
+- 一旦密钥被提交进 Git 历史，即使后续删除也要视为已泄露，**必须到云厂商控制台轮换**
 
-### 10.3 部署方式
-- 容器化：Docker+Dockerfile+docker-compose
-- 编排：Docker Compose/K8s
-- CI/CD流水线：代码提交→审查→测试→构建→部署→验证
+### 5.4 文件上传
 
-### 10.4 部署流程
-- 部署前：文档，备份，通知
-- 部署中：低峰期，蓝绿/滚动部署，监控
-- 部署后：检查服务/日志，功能测试，监控
-- 回滚：详细方案，简单快速
+- 限制扩展名白名单与单文件大小（当前上限 10MB，见 `spring.servlet.multipart`）
+- 文件名重命名，禁止使用用户原始文件名落盘
+- 上传目录必须位于 jar 包外部（`application.yaml` 的 `file.upload.path` 可配），否则打包后无法写入
 
-### 10.5 监控与告警
-- 指标：系统（CPU/内存）、应用（请求/响应/错误）、业务（订单/金额）
-- 工具：Prometheus+Grafana（系统），Spring Boot Actuator+Micrometer（应用），ELK（日志）
-- 告警：CPU/内存>80%，错误率>5%，服务不可用
-- 渠道：邮件/短信/即时通讯/电话
+---
 
-## 11. Git规范
-- 分支：功能分支feature/名称
-- 提交信息：清晰简洁，格式：类型: 描述
-- 定期合并主分支
+## 6. 数据库与 SQL
 
-## 12. 性能优化规范
-- 缓存：合理使用，减少DB访问
-- 避免N+1查询
-- 大文件：分片上传
-- 图片：CDN加速
+- SQL 写在 `resources/mapper/**/*.xml`，简单单表查询优先走 MyBatis Plus 的 `Wrapper`
+- `SELECT` 必须显式列出字段，禁止 `SELECT *`
+- `WHERE` 条件字段上禁止套函数，禁止对索引列做隐式类型转换
+- `JOIN` 不超过 3 张表，优先 `INNER JOIN`
+- 批量写入使用 `foreach`，单批不超过 1000 条
+- 软删除表（如 `book.deleted_at`）查询必须带 `deleted_at IS NULL`
+- 所有表、字段必须写 `COMMENT`
 
-## 13. 技术栈最佳实践
-- 核心技术栈：Spring Boot 3.2.0，MyBatis Plus 3.5.7，MySQL 8.0，Redis 6.0，JWT 0.9.1，Lombok 1.18.20
-- 依赖管理：
-  - 父pom统一管理所有依赖版本
-  - 功能包间禁止循环依赖
-  - 禁止引入不必要的依赖
-  - 定期更新依赖版本，修复安全漏洞
-  - 功能包内依赖：
-    - controller层：仅依赖service层和common包
-    - service层：仅依赖mapper层和common包
-    - mapper层：仅依赖entity和common包
-    - dto/entity/vo：仅依赖common包
-- 技术栈使用原则：
-  - 严格遵循各技术栈的最佳实践
-  - 禁止混合使用相似功能的技术栈
-  - 新技术栈引入前必须经过评估和测试
+---
 
-## 14. 代码审查规范
-- 必须进行代码审查
-- 关注：代码质量、安全性、性能、可读性
+## 7. 异常处理
+
+- 业务异常统一抛自定义异常，由全局异常处理器转成 `Result.error(...)`
+- 禁止 `catch` 后不处理、不打日志
+- 禁止用异常控制正常业务流程
+- 对外响应不暴露堆栈信息，堆栈只进日志
+
+---
+
+## 8. 日志
+
+- 统一使用 Lombok 的 `@Slf4j`，禁止 `System.out.println`
+- 用占位符风格：`log.info("发布书籍成功，bookId={}", bookId)`
+- 级别约定：`INFO` 正常流程 / `WARN` 参数校验失败 / `ERROR` 系统异常（带堆栈）
+- 循环体内每 1000 条打印一次，禁止逐条打
+
+---
+
+## 9. WebSocket 规范
+
+- 端点：`/ws/chat`，通过 URL 参数携带 token 完成鉴权
+- 消息体统一使用 `WebSocketEvent` 封装，包含事件类型与负载
+- 前端在 HTTPS 环境下必须使用 `wss://`，否则浏览器会拦截明文连接
+- Nginx 反向代理必须配置 `Upgrade` 与 `Connection: upgrade` 头，并延长 `proxy_read_timeout`
+
+---
+
+## 10. Git 规范
+
+### 10.1 提交信息
+
+格式：`类型: 描述`
+
+| 类型 | 含义 |
+|---|---|
+| `feat` | 新功能 |
+| `fix` | 修复缺陷 |
+| `refactor` | 重构，不改变外部行为 |
+| `docs` | 文档 |
+| `chore` | 构建、依赖、配置 |
+
+示例：`feat: 求购广场支持按分类筛选`、`fix: 修复图片回显路径错误`
+
+**禁止**使用「调试」「瞎折腾」「更新」这类无信息量的描述。
+
+### 10.2 禁止提交的内容
+
+```
+target/
+node_modules/
+dist/
+.idea/
+*.iml
+.env
+*.log
+```
+
+---
+
+## 11. 代码风格
+
+- 缩进 4 空格，行宽不超过 120 字符
+- Lombok 使用约定：实体/DTO/VO 用 `@Data`，服务实现类用 `@Slf4j`
+- 方法参数不超过 5 个，超出封装为 DTO
+- 集合初始化指定容量
+- 资源关闭使用 try-with-resources
+- 所有类、公开方法写 Javadoc，使用中文
+
+类注释模板：
+
+```java
+/**
+ * 项目名称：booktrad
+ * 版本：V1.0
+ *
+ * @Author yaozekai
+ * @Email 2321593248@qq.com
+ * @Description 描述本类职责
+ * @Date yyyy-MM-dd HH:mm
+ */
+```
