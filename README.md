@@ -198,7 +198,6 @@ java -jar target/booktrad-0.0.1-SNAPSHOT.jar
 
 - **作者**: yaozekai
 - **邮箱**: 2321593248@qq.com
-- **项目类型**: 毕业设计
 
 ## 许可证
 
