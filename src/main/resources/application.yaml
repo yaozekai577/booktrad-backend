@@ -36,9 +36,9 @@ oss:
   # OSS服务端点，例如：oss-cn-hangzhou.aliyuncs.com
   endpoint: oss-cn-hangzhou.aliyuncs.com
   # 阿里云访问密钥ID
-  access-key-id: __REMOVED_OSS_ACCESS_KEY_ID__
+  access-key-id: ${OSS_ACCESS_KEY_ID:}
   # 阿里云访问密钥Secret
-  access-key-secret: __REMOVED_OSS_ACCESS_KEY_SECRET__
+  access-key-secret: ${OSS_ACCESS_KEY_SECRET:}
   # OSS存储空间名称
   bucket-name: web-yzk
   # OSS存储空间所在区域
@@ -52,7 +52,7 @@ oss:
 ai:
   # 阿里云通义千问配置
   dashscope:
-    api-key: __REMOVED_DASHSCOPE_API_KEY__
+    api-key: ${DASHSCOPE_API_KEY:}
     model: qwen-plus
     timeout: 30  # 超时时间（秒）
   
